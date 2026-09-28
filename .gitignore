@@ -1,0 +1,40 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Storybook
+storybook-static
+*storybook.log
+
+# Local configuration and generated design work
+.env
+.env.*
+!.env.example
+.claude/
+.mcp.json
+output/
+design/*
+!design/audits/
+design/audits/*
+!design/audits/moleculai-composer-2026-09-27.json

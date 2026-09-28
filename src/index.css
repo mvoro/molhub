@@ -1,0 +1,1125 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: var(--font-sans);
+    --font-sans: 'Geist Variable', sans-serif;
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-muted-foreground: var(--sidebar-muted-foreground);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-tooltip-foreground: var(--tooltip-foreground);
+    --color-tooltip: var(--tooltip);
+    --color-tool-text: var(--tool-text);
+    --color-tool-photo: var(--tool-photo);
+    --color-tool-video: var(--tool-video);
+    --color-tool-audio: var(--tool-audio);
+    --color-file-pdf: var(--file-pdf);
+    --color-file-sheet: var(--file-sheet);
+    --color-paper: var(--paper);
+    --color-stars: var(--stars);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    /* Hover/open fills for Button: one step toward the text colour, like a sidebar row going to
+       --sidebar-accent — darker in light, lighter in dark, on any surface. Primary takes a double
+       step so the shift reads on a saturated fill. Mixed in oklab: in oklch the grey's hue 0 would
+       drag primary's hue toward pink. */
+    --color-primary-hover: color-mix(in oklab, var(--primary), var(--foreground) calc(var(--hover-step) * 2));
+    --color-secondary-hover: color-mix(in oklab, var(--secondary), var(--foreground) var(--hover-step));
+    --color-ghost-hover: color-mix(in oklab, transparent, var(--foreground) var(--hover-step));
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+    /* Molly's send-button gradient (composer-chat .mode-auto .composer-submit.colored). */
+    --gradient-molly: linear-gradient(110deg, #ff723f, #dc3fff 28%, #7a3fff 55%, #3f8cff 80%, #00ffd1);
+    /* Tool colours, sampled from the sidebar tiles (public/icons). */
+    --tool-text: #fd6930;
+    --tool-photo: #d232fc;
+    --tool-video: #fd6021;
+    --tool-audio: #3181fd;
+    /* Attachment tiles in the composer that are not the primary: PDF red, spreadsheets green. */
+    --file-pdf: oklch(0.58 0.22 26);
+    --file-sheet: oklch(0.6 0.15 152);
+    /* A PDF page in the file viewer: paper stays white in both themes. */
+    --paper: oklch(1 0 0);
+    /* The drifting dots behind a new chat (mashagpt): a quiet grey on white, #707070-ish in the dark. */
+    --stars: oklch(0.78 0 0);
+    /* The glow behind a new chat (HomeGlow, Lovable's soft wash, 27.09): five colours, slot 1 on the left to
+       slot 5 on the right (.home-glow maps a palette onto --glow-1…5). The same colours in both themes; only the
+       strength changes: pastel on white, embers on dark.
+       «Инструменты»: the tool colours plus primary, cool on the left, warm on the right; the pink and the peach
+       are the light ends of the Фото and Видео tiles. */
+    --glow-tools-1: var(--tool-audio);
+    --glow-tools-2: var(--primary);
+    --glow-tools-3: #ec52fa;
+    --glow-tools-4: var(--tool-video);
+    --glow-tools-5: #fd9152;
+    /* «Молли»: the stops of the Молли icon (public/models/molly.svg), coral → magenta → violet → blue → mint. */
+    --glow-molly-1: #ff723f;
+    --glow-molly-2: #dc3fff;
+    --glow-molly-3: #7a3fff;
+    --glow-molly-4: #3f8cff;
+    --glow-molly-5: #00ffd1;
+    --glow-strength: 0.7;
+    --glow-grain: 0.3;
+    /* The domes («Рассвет», «Тёплый центр») are brighter than the wash: 0.86 on white, full on dark. */
+    --glow-dome-strength: 0.86;
+    /* brand primary = #7A3FFF */
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    /* Tooltips are always grey, in both themes (rule 26.09). */
+    --tooltip: oklch(0.37 0 0);
+    --tooltip-foreground: oklch(1 0 0);
+    /* Project icon tints (ChatGPT palette). Light: ≥ 3:1 on white; dark: ≥ 3:1 on the dark card. */
+    --project-red: oklch(0.6 0.2 25);
+    --project-orange: oklch(0.66 0.17 50);
+    --project-yellow: oklch(0.64 0.13 80); /* amber, not lemon: holds 3:1 on white */
+    --project-green: oklch(0.6 0.15 150);
+    --project-blue: oklch(0.58 0.19 258);
+    --project-purple: oklch(0.56 0.261 289.05); /* = primary */
+    --project-pink: oklch(0.62 0.2 350);
+    --primary: oklch(0.56 0.261 289.05);
+    --primary-foreground: oklch(1 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.56 0.261 289.05);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --radius: 0.625rem;
+
+    /* shell: sidebar is carved into the #f7f7f7 background, workspace is a white card (from composer-chat-v2) */
+    /* --sidebar = #f7f7f7, --sidebar-accent = #ececec (hover/active row) */
+    --sidebar-muted-foreground: oklch(0.145 0 0 / 62%); /* ≈5.4:1 on #f7f7f7 (AA) */
+
+    /* motion (Emil Kowalski): strong custom curves, UI under 300ms */
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+    --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+    /* Light turning on (HomeGlow): brightness rises evenly, no flash in the first 100ms. Not a reply to the
+       user's action, so the «ease-out on enter» rule does not apply. */
+    --ease-glow: cubic-bezier(0.37, 0, 0.63, 1);
+    /* Spring (Apple's duration 0.5 s, bounce 0.3 — damping 0.7): ~5% overshoot at 340ms, settled by 800ms.
+       For rare, playful entrances only (the idea fan's deal); run it for 800ms. */
+    --ease-spring: linear(0, 0.028, 0.099, 0.197, 0.308, 0.423, 0.535, 0.638, 0.729, 0.808, 0.874, 0.927, 0.968, 0.998, 1.02, 1.034, 1.042, 1.046, 1.046, 1.043, 1.039, 1.034, 1.029, 1.024, 1.019, 1.014, 1.011, 1.007, 1.005, 1.002, 1.001, 1);
+    --duration-press: 160ms;
+    --duration-fast: 150ms;
+    /* Hover step, matched to the sidebar rows: #f7f7f7 → #ececec here, 0.205 → 0.269 in dark. */
+    --hover-step: 5%;
+    --sidebar-duration: 240ms;
+    --drawer-duration: 300ms; /* mobile push menu */
+    --sidebar: oklch(0.9761 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.56 0.261 289.05);
+    --sidebar-primary-foreground: oklch(1 0 0);
+    --sidebar-accent: oklch(0.9401 0 0);
+    --sidebar-accent-foreground: oklch(0.145 0 0);
+    --sidebar-border: oklch(0.9219 0 0);
+    --sidebar-ring: oklch(0.56 0.261 289.05);
+}
+
+.dark {
+    --hover-step: 8%;
+    --tool-text: #fd6930;
+    --tool-photo: #d232fc;
+    --tool-video: #fd6021;
+    --tool-audio: #3181fd;
+    --file-pdf: oklch(0.58 0.22 26);
+    --file-sheet: oklch(0.6 0.15 152);
+    --paper: oklch(1 0 0);
+    --stars: oklch(0.55 0 0);
+    --glow-strength: 0.6;
+    --glow-grain: 0.22;
+    --glow-dome-strength: 1;
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --tooltip: oklch(0.37 0 0);
+    --tooltip-foreground: oklch(1 0 0);
+    /* Project icon tints, lighter to hold 3:1 on the dark card. */
+    --project-red: oklch(0.72 0.17 25);
+    --project-orange: oklch(0.76 0.15 55);
+    --project-yellow: oklch(0.82 0.14 85);
+    --project-green: oklch(0.74 0.15 150);
+    --project-blue: oklch(0.72 0.14 258);
+    --project-purple: oklch(0.7 0.19 290);
+    --project-pink: oklch(0.76 0.15 350);
+    --primary: oklch(0.56 0.261 289.05);
+    --primary-foreground: oklch(1 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.56 0.261 289.05);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-muted-foreground: oklch(0.985 0 0 / 50%);
+    --sidebar-primary: oklch(0.56 0.261 289.05);
+    --sidebar-primary-foreground: oklch(1 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.56 0.261 289.05);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+  html {
+    @apply font-sans;
+    }
+  /* Everything clickable shows the pointer (Tailwind v4 no longer gives it to buttons). Menu items, options
+     and list rows set cursor-pointer in their ui components; disabled controls keep the arrow. */
+  button:not(:disabled):not([aria-disabled="true"]),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+  /* A menu or popover on its way out (the fade still playing) is already gone for the pointer: a quick
+     click on the next menu's button, or on whatever lies under it, lands there instead of on a vanishing
+     row (27.09 one was «Удалить»). The rule is on the library's positioning wrapper, which catches the
+     pointer on its own; the content inherits it. */
+  [data-radix-popper-content-wrapper]:has(> [data-state="closed"]) {
+    pointer-events: none;
+  }
+  /* tw-animate ignores reduced motion: keep its fades, drop the zoom, slide and spin (spec §11). */
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+      --tw-enter-scale: 1 !important;
+      --tw-exit-scale: 1 !important;
+      --tw-enter-rotate: 0 !important;
+      --tw-exit-rotate: 0 !important;
+      --tw-enter-translate-x: 0 !important;
+      --tw-enter-translate-y: 0 !important;
+      --tw-exit-translate-x: 0 !important;
+      --tw-exit-translate-y: 0 !important;
+    }
+  }
+}
+/* ---------- Sidebar motion ----------
+   Icons sit in a fixed 36px column, so collapsing never moves them: only the panel
+   width animates (drawer curve) and labels fade. Fade-out is faster than fade-in. */
+@property --marquee-fade {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@layer components {
+  /* A Word file in the file viewer (docx-page.tsx): mammoth's plain markup in the app's type. */
+  .doc-view {
+    font-size: 15px;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+  }
+  .doc-view > :first-child { margin-top: 0; }
+  .doc-view > :last-child { margin-bottom: 0; }
+  .doc-view :where(p, ul, ol, table, blockquote) { margin: 0 0 0.85em; }
+  .doc-view :where(h1, h2, h3, h4, h5, h6) { margin: 1.4em 0 0.5em; font-weight: 600; line-height: 1.3; }
+  .doc-view :where(h1) { font-size: 1.6em; }
+  .doc-view :where(h2) { font-size: 1.3em; }
+  .doc-view :where(h3) { font-size: 1.12em; }
+  .doc-view :where(h4, h5, h6) { font-size: 1em; }
+  .doc-view :where(ul) { list-style: disc; padding-left: 1.4em; }
+  .doc-view :where(ol) { list-style: decimal; padding-left: 1.4em; }
+  .doc-view :where(li) { margin: 0.2em 0; }
+  .doc-view :where(li > p) { margin: 0; }
+  .doc-view :where(strong, b) { font-weight: 600; }
+  .doc-view :where(a[href]) { color: var(--primary); text-decoration: underline; text-underline-offset: 2px; }
+  .doc-view :where(table) { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; font-size: 0.93em; }
+  .doc-view :where(td, th) { border: 1px solid var(--border); padding: 0.4em 0.6em; vertical-align: top; }
+  .doc-view :where(td p, th p) { margin: 0; }
+  .doc-view :where(img) { max-width: 100%; height: auto; border-radius: 6px; }
+  .doc-view :where(blockquote) { border-left: 3px solid var(--border); padding-left: 1em; color: var(--muted-foreground); }
+
+  /* Sidebar rows and menu items share one feel: same hover fade, same press. */
+  [data-sidebar="menu-button"],
+  [data-sidebar="menu-action"],
+  [data-sidebar="group-action"],
+  [data-slot="dropdown-menu-item"],
+  [data-slot="dropdown-menu-radio-item"] {
+    /* hover is seen dozens of times a minute: near-instant */
+    transition:
+      background-color 80ms ease,
+      color 80ms ease,
+      opacity var(--duration-fast) ease,
+      transform var(--duration-press) var(--ease-out);
+  }
+  /* Buttons of every shape share the rows' timing: 80ms fills, the press scale from button.tsx
+     (the scale property, so a local active:scale-* replaces it rather than multiplying). */
+  [data-slot="button"] {
+    transition:
+      background-color 80ms ease,
+      color 80ms ease,
+      border-color 80ms ease,
+      opacity var(--duration-fast) ease,
+      scale var(--duration-press) var(--ease-out);
+  }
+  [data-sidebar="menu-button"]:active:not(:disabled),
+  [data-slot="dropdown-menu-item"]:active:not([data-disabled]),
+  [data-slot="dropdown-menu-radio-item"]:active:not([data-disabled]) {
+    transform: scale(0.98);
+  }
+
+  .sidebar-fade {
+    transition: opacity 200ms var(--ease-out) 100ms;
+  }
+  [data-collapsible="icon"] .sidebar-fade {
+    opacity: 0;
+    transition-duration: 100ms;
+    transition-delay: 0ms;
+  }
+
+  /* Rail-only rows (search): grow in step with the panel, so items below glide instead of jumping. */
+  .sidebar-reveal {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows var(--sidebar-duration) var(--ease-drawer);
+  }
+  .sidebar-reveal > * {
+    min-height: 0;
+    overflow: hidden;
+  }
+  [data-collapsible="icon"] .sidebar-reveal {
+    grid-template-rows: 1fr;
+  }
+  /* The reverse: expanded-only rows (mode sub-list) shrink away as the panel folds into the rail. */
+  .sidebar-conceal {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows var(--sidebar-duration) var(--ease-drawer);
+  }
+  .sidebar-conceal > * {
+    min-height: 0;
+    overflow: hidden;
+  }
+  [data-collapsible="icon"] .sidebar-conceal {
+    grid-template-rows: 0fr;
+  }
+
+  /* Keyboard toggle (⌘B) and reduced motion: no movement. */
+  [data-instant] [data-slot="sidebar-gap"],
+  [data-instant] [data-slot="sidebar-container"],
+  [data-instant] .sidebar-reveal,
+  [data-instant] .sidebar-conceal,
+  [data-instant] .sidebar-fade {
+    transition-duration: 0ms !important;
+    transition-delay: 0ms !important;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-slot="sidebar-gap"],
+    [data-slot="sidebar-container"],
+    .sidebar-reveal,
+    .sidebar-conceal {
+      transition-duration: 0ms !important;
+    }
+    [data-sidebar="menu-button"]:active:not(:disabled),
+    [data-slot="dropdown-menu-item"]:active,
+    [data-slot="dropdown-menu-radio-item"]:active {
+      transform: none;
+    }
+  }
+
+  /* Marquee for long chat/project names (MarqueeLabel). After a 1s hover the text scrolls to its end
+     at a steady speed; the left edge gains the same 20px fade as the right one as it starts moving.
+     Leaving (or no overflow) glides straight back. --marquee-shift/-duration are measured in JS. */
+  .marquee {
+    mask-image: linear-gradient(to right, transparent 0, #000 var(--marquee-fade), #000 calc(100% - 20px), transparent);
+    transition: --marquee-fade 150ms var(--ease-out);
+  }
+  .marquee > span {
+    display: inline-block;
+    transition: translate 200ms var(--ease-out);
+  }
+  [data-slot="sidebar-menu-item"]:is(:hover, :has(:focus-visible)) .marquee[data-overflow] {
+    --marquee-fade: 20px;
+    transition-delay: 1000ms;
+  }
+  [data-slot="sidebar-menu-item"]:is(:hover, :has(:focus-visible)) .marquee[data-overflow] > span {
+    translate: var(--marquee-shift) 0;
+    transition: translate var(--marquee-duration) linear 1000ms;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee > span {
+      translate: none !important;
+    }
+  }
+
+  /* Fan of ideas on a tool page (IdeaFan, Krea). Cards are sized from the stage's width (a container,
+     cqi): four overlapping cards take about 80% of it, up to 210px each. Each slot sits in its spot
+     with its own tilt (--r) and drop (--y); --i is its place in the hand.
+     The deal: the first card fades up in place; the others start stacked under it — no tilt,
+     blurred, invisible — and slide out to their spots one after another (90ms apart), sharpening
+     as they land. A page entrance seen once per visit, so it may run longer than UI motion
+     (≈1s in all); strong ease-out, only translate/rotate/scale, opacity and a light blur. */
+  .idea-fan {
+    /* Cards in the hand and the middle of the row, where the deal starts from. */
+    --n: 4;
+    --mid: 1.5;
+    --card-w: clamp(128px, 21cqi, 210px);
+    --card-h: calc(var(--card-w) * 1.25);
+    --step: calc(var(--card-w) * 0.93);
+    position: relative;
+    width: calc(var(--card-w) + (var(--n) - 1) * var(--step));
+    height: calc(var(--card-h) + var(--card-w) * 0.14);
+  }
+  /* The phone holds three (the user's ask, 27.09): the row takes about 95% of the screen's width. */
+  @media (width < 48rem) {
+    .idea-fan {
+      --n: 3;
+      --mid: 1;
+      --card-w: min(33cqi, 150px);
+    }
+    .idea-fan-slot:nth-child(n + 4) {
+      display: none;
+    }
+  }
+  .idea-fan-slot {
+    position: absolute;
+    top: 0;
+    left: calc(var(--i) * var(--step));
+    width: var(--card-w);
+    height: var(--card-h);
+    translate: 0 var(--y);
+    rotate: var(--r);
+    scale: var(--s);
+    /* Krea's deal (taken frame by frame from krea.ai/image, 27.09): the cards start gathered under the
+       middle of the row — each a little over a third of the way from the centre, lower by half a card,
+       smaller and upright — and spread out to their places, tilting as they go, 50ms apart. Krea eases
+       it with a back-in-out, whose wind-up is spent while the cards are still invisible; here a spring
+       carries the motion (fast start, ~5% overshoot, settles), and the focus is separate and plain:
+       opacity and a 10px blur clear in 450ms, no overshoot. Transform properties and opacity only,
+       plus the blur, which masks the cards passing through each other. Rare (one deal per visit to the
+       tool), so it may run longer than UI motion. */
+    animation:
+      idea-fan-deal 800ms var(--ease-spring) calc(80ms + var(--i) * 50ms) backwards,
+      idea-fan-focus 450ms var(--ease-out) calc(80ms + var(--i) * 50ms) backwards;
+  }
+  @keyframes idea-fan-deal {
+    from {
+      translate: calc((var(--mid) - var(--i)) * var(--step) * 0.42) calc(var(--card-w) * 0.48);
+      rotate: 0deg;
+      scale: 0.9;
+    }
+  }
+  @keyframes idea-fan-focus {
+    from {
+      opacity: 0;
+      filter: blur(10px);
+    }
+  }
+  @keyframes idea-fan-fade {
+    from {
+      opacity: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .idea-fan-slot {
+      animation: idea-fan-fade 200ms ease backwards;
+    }
+  }
+
+  /* Scrims over the photo and video results (the user's reference, 27.09: the bottom one «слишком
+     залитая — рассеять», and «маска сверху должна быть такой же, как снизу»). One curve for both, mirrored:
+     the background fades along an ease curve, not a straight line, so there is no band where the fade
+     ends, and it never goes fully solid (90% at the very edge, about half at the middle of what it
+     covers) — the pictures still show through, softly. The top one lies behind the toolbar, the
+     bottom one behind the composer. */
+  .scrim-top,
+  .scrim-bottom {
+    --scrim: color-mix(in oklab, var(--background) 90%, transparent) 0%,
+      color-mix(in oklab, var(--background) 76%, transparent) 18%,
+      color-mix(in oklab, var(--background) 56%, transparent) 36%,
+      color-mix(in oklab, var(--background) 34%, transparent) 55%,
+      color-mix(in oklab, var(--background) 15%, transparent) 74%,
+      color-mix(in oklab, var(--background) 4%, transparent) 90%,
+      transparent 100%;
+  }
+  .scrim-top {
+    background: linear-gradient(to bottom, var(--scrim));
+  }
+  .scrim-bottom {
+    background: linear-gradient(to top, var(--scrim));
+  }
+
+  /* A picture fades in as it loads (one that has just been made dissolves in out of the generation
+     effect instead, generation-effect.tsx). */
+  .image-feed-picture {
+    opacity: 0;
+    transition: opacity 200ms ease;
+  }
+  .image-feed-picture[data-loaded] {
+    opacity: 1;
+  }
+  /* A song's placeholder: a soft sheen crosses it again and again — constant motion, so linear. */
+  .image-feed-pending::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 25%, color-mix(in oklab, var(--background) 55%, transparent) 50%, transparent 75%);
+    translate: -100% 0;
+    animation: image-feed-sheen 1.6s linear infinite;
+  }
+  @keyframes image-feed-sheen {
+    to {
+      translate: 100% 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .image-feed-pending::before {
+      animation: none;
+      opacity: 0;
+    }
+  }
+
+  /* Four bars on the home page's audio ideas. At rest they hold uneven heights (paused mid-way, each
+     at its own phase) and read as a waveform; while the card is hovered with a mouse they bounce.
+     Only transform animates; reduced motion keeps the still waveform. */
+  .equalizer {
+    gap: 2px;
+  }
+  .equalizer > span {
+    width: 2px;
+    height: 12px;
+    border-radius: 1px;
+    background: currentColor;
+    transform-origin: bottom;
+    animation: equalizer 800ms var(--ease-in-out) infinite alternate paused;
+  }
+  .equalizer > span:nth-child(1) {
+    animation-delay: -400ms;
+  }
+  .equalizer > span:nth-child(2) {
+    animation-duration: 600ms;
+    animation-delay: -100ms;
+  }
+  .equalizer > span:nth-child(3) {
+    animation-duration: 900ms;
+    animation-delay: -650ms;
+  }
+  .equalizer > span:nth-child(4) {
+    animation-duration: 700ms;
+    animation-delay: -250ms;
+  }
+  @keyframes equalizer {
+    from {
+      transform: scaleY(0.3);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    [data-slot="button"]:hover .equalizer > span {
+      animation-play-state: running;
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    [data-slot="button"]:focus-visible .equalizer > span,
+    .equalizer[data-playing] > span {
+      animation-play-state: running;
+    }
+  }
+
+  /* Shine on the upgrade CTA: a narrow slanted highlight crosses the button, then rests.
+     Always on screen, so the pass is short (0.8s of a 5s cycle) and rare. It moves across
+     the surface, so ease-in-out; only transform animates (compositor, no repaint of text). */
+  .shine {
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .shine::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 40%;
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.45), transparent);
+    transform: translateX(-120%) skewX(-20deg);
+    animation: shine 5s var(--ease-in-out) 1.5s infinite;
+    pointer-events: none;
+  }
+  @keyframes shine {
+    0% {
+      transform: translateX(-120%) skewX(-20deg);
+    }
+    16%,
+    100% {
+      transform: translateX(320%) skewX(-20deg);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .shine::after {
+      display: none;
+    }
+  }
+
+  /* Four looks (27.09): «Из угла» (look="corner", on the home screen now), «Тёплый центр» (look="warm") and
+     «Рассвет» (look="dawn", on a landscape screen), see their blocks below, and «Акварель» (look="mist") everywhere else, the phone
+     included. Compare the palettes in design/glow-palettes.html, the dome mixes in design/glow-mixes.html.
+     The glow behind a new chat (HomeGlow; Lovable's soft wash, approved in design/gradients.html «Акварель»).
+     Six big patches in the tool colours, cool on the left, warm on the right, the top nearly clean.
+     No visible rims: each patch fades on a gaussian-like curve (1 − t²)², so it reaches zero with no kink,
+     and is blurred for real. The painted box is a quarter larger than the screen on every side, so the blur
+     never pulls transparency in from its edges; the layer clips it back. Patches are placed in screen
+     coordinates (--x --y --rx --ry) and mapped into that box once, in .home-glow-paint.
+     The box is a size container: the blur scales with its width (cqw), and a portrait box (the phone)
+     gets its own layout. */
+  .home-glow {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    isolation: isolate;
+    pointer-events: none;
+    container-type: size;
+    background: var(--background);
+    --glow-1: var(--glow-tools-1);
+    --glow-2: var(--glow-tools-2);
+    --glow-3: var(--glow-tools-3);
+    --glow-4: var(--glow-tools-4);
+    --glow-5: var(--glow-tools-5);
+  }
+  .home-glow[data-palette="molly"] {
+    --glow-1: var(--glow-molly-1);
+    --glow-2: var(--glow-molly-2);
+    --glow-3: var(--glow-molly-3);
+    --glow-4: var(--glow-molly-4);
+    --glow-5: var(--glow-molly-5);
+  }
+  /* The layers and the grain, held back to the look's strength. Opaque like the box, so the grain's soft-light
+     finds a backdrop everywhere. */
+  .home-glow-stack {
+    position: absolute;
+    inset: 0;
+    background: var(--background);
+    opacity: var(--glow-strength);
+  }
+  .home-glow-layer {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    transform-origin: var(--x) var(--y);
+  }
+  .home-glow-paint {
+    position: absolute;
+    inset: -25%;
+    filter: blur(7cqw);
+    background: radial-gradient(
+      ellipse calc(var(--rx) / 1.5) calc(var(--ry) / 1.5) at calc((var(--x) + 25%) / 1.5) calc((var(--y) + 25%) / 1.5),
+      color-mix(in srgb, var(--c) calc(var(--a) * 100%), transparent) 0%,
+      color-mix(in srgb, var(--c) calc(var(--a) * 96.9%), transparent) 12.5%,
+      color-mix(in srgb, var(--c) calc(var(--a) * 87.9%), transparent) 25%,
+      color-mix(in srgb, var(--c) calc(var(--a) * 74.2%), transparent) 37.5%,
+      color-mix(in srgb, var(--c) calc(var(--a) * 56.3%), transparent) 50%,
+      color-mix(in srgb, var(--c) calc(var(--a) * 37.1%), transparent) 62.5%,
+      color-mix(in srgb, var(--c) calc(var(--a) * 19.1%), transparent) 75%,
+      color-mix(in srgb, var(--c) calc(var(--a) * 5.5%), transparent) 87.5%,
+      transparent 100%
+    );
+  }
+  /* Grain breaks up banding on the big fills; soft-light leaves pure white and black untouched. */
+  .home-glow-grain {
+    position: absolute;
+    inset: 0;
+    opacity: var(--glow-grain);
+    mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 220px 220px;
+  }
+  /* Landscape (desktop), slots left to right (with «Инструменты»: blue, violet, pink in the middle, orange,
+     peach on the right), slot 3 again as a haze up top. --i is the patch's turn in the entrance. */
+  .home-glow-layer:nth-child(1) { --i: 0; --c: var(--glow-1); --a: 0.95; --x: 14%; --y: 56%; --rx: 36%; --ry: 52%; }
+  .home-glow-layer:nth-child(2) { --i: 1; --c: var(--glow-2); --a: 0.95; --x: 30%; --y: 74%; --rx: 34%; --ry: 46%; }
+  .home-glow-layer:nth-child(3) { --i: 2; --c: var(--glow-3); --a: 1;    --x: 49%; --y: 70%; --rx: 36%; --ry: 50%; }
+  .home-glow-layer:nth-child(4) { --i: 3; --c: var(--glow-4); --a: 0.95; --x: 64%; --y: 76%; --rx: 38%; --ry: 50%; }
+  .home-glow-layer:nth-child(5) { --i: 4; --c: var(--glow-5); --a: 1;    --x: 87%; --y: 60%; --rx: 34%; --ry: 54%; }
+  .home-glow-layer:nth-child(6) { --i: 5; --c: var(--glow-3); --a: 0.4;  --x: 72%; --y: 14%; --rx: 56%; --ry: 34%; }
+  /* Portrait (phone), after Lovable's mobile: not patches but one wash that is fullest at the bottom and
+     thins out evenly towards the top, the colour changing across it, slots 2 → 5 (with «Инструменты»: violet
+     on the left, pink to wine in the middle, orange to peach on the right). Separate patches left black gaps between them and a dark
+     bottom edge (27.09). The first layer is that wash: a colour ramp across, masked by a ramp up (both in
+     the painted box's coordinates: the screen spans 16.7%–83.3% of it). The other layers only tint it:
+     slots 1 and 2 at the left edge, 4 on the right, 3 behind the greeting, 4 along the bottom (with
+     «Инструменты»: blue and violet, orange, wine, rust). */
+  @container (orientation: portrait) {
+    .home-glow-layer:nth-child(1) { --x: 50%; --y: 100%; }
+    .home-glow-layer:nth-child(1) > .home-glow-paint {
+      background: linear-gradient(
+        to right,
+        var(--glow-2) 16.7%,
+        color-mix(in srgb, var(--glow-2) 50%, var(--glow-3)) 24%,
+        var(--glow-3) 33%,
+        color-mix(in srgb, var(--glow-3) 45%, var(--glow-4)) 45%,
+        var(--glow-4) 58%,
+        var(--glow-5) 83.3%
+      );
+      -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 30%,
+        rgb(0 0 0 / 0.06) 38%,
+        rgb(0 0 0 / 0.2) 46%,
+        rgb(0 0 0 / 0.42) 54%,
+        rgb(0 0 0 / 0.65) 60.7%,
+        rgb(0 0 0 / 0.85) 67.3%,
+        black 75.3%
+      );
+      mask-image: linear-gradient(
+        to bottom,
+        transparent 30%,
+        rgb(0 0 0 / 0.06) 38%,
+        rgb(0 0 0 / 0.2) 46%,
+        rgb(0 0 0 / 0.42) 54%,
+        rgb(0 0 0 / 0.65) 60.7%,
+        rgb(0 0 0 / 0.85) 67.3%,
+        black 75.3%
+      );
+    }
+    .home-glow-layer:nth-child(2) { --c: var(--glow-1); --a: 0.85; --x: 0%;   --y: 44%;  --rx: 50%; --ry: 16%; }
+    .home-glow-layer:nth-child(3) { --c: var(--glow-2); --a: 0.7;  --x: 0%;   --y: 62%;  --rx: 40%; --ry: 18%; }
+    .home-glow-layer:nth-child(4) { --c: var(--glow-4); --a: 0.85; --x: 96%;  --y: 64%;  --rx: 55%; --ry: 22%; }
+    .home-glow-layer:nth-child(5) { --c: var(--glow-3); --a: 0.45; --x: 50%;  --y: 52%;  --rx: 60%; --ry: 16%; }
+    .home-glow-layer:nth-child(6) { --c: var(--glow-4); --a: 0.8;  --x: 40%;  --y: 100%; --rx: 80%; --ry: 16%; }
+  }
+
+  /* «Рассвет» (look="dawn"): on a landscape screen a big dome of light rising from the bottom edge up to the
+     composer, wider than the screen (Lovable's home, 27.09): violet outside, then magenta and a warm orange
+     core. No turquoise or blue ring (the user's ask, 27.09). Three layers, crisp ellipses with no blur, its own
+     strength. A portrait screen (the phone) keeps «Акварель» above. The layers settle towards the bottom centre. */
+  @container (orientation: landscape) {
+    .home-glow[data-look="dawn"] .home-glow-stack { opacity: var(--glow-dome-strength); }
+    .home-glow[data-look="dawn"] .home-glow-layer { --x: 50%; --y: 100%; }
+    .home-glow[data-look="dawn"] .home-glow-layer:nth-child(n + 4) { display: none; }
+    .home-glow[data-look="dawn"] .home-glow-paint { inset: 0; filter: none; }
+    .home-glow[data-look="dawn"] .home-glow-layer:nth-child(1) > .home-glow-paint {
+      background: radial-gradient(
+        ellipse 92% 78% at 50% 112%,
+        var(--primary) 0%,
+        color-mix(in srgb, var(--primary) 86%, transparent) 50%,
+        color-mix(in srgb, var(--primary) 32%, transparent) 78%,
+        transparent 100%
+      );
+    }
+    .home-glow[data-look="dawn"] .home-glow-layer:nth-child(2) > .home-glow-paint {
+      background: radial-gradient(
+        ellipse 68% 60% at 50% 112%,
+        var(--glow-tools-3) 0%,
+        color-mix(in srgb, var(--tool-photo) 90%, transparent) 42%,
+        color-mix(in srgb, var(--tool-photo) 26%, transparent) 76%,
+        transparent 100%
+      );
+    }
+    .home-glow[data-look="dawn"] .home-glow-layer:nth-child(3) > .home-glow-paint {
+      background: radial-gradient(
+        ellipse 48% 42% at 50% 112%,
+        var(--glow-tools-5) 0%,
+        color-mix(in srgb, var(--tool-video) 95%, transparent) 42%,
+        color-mix(in srgb, var(--tool-video) 30%, transparent) 76%,
+        transparent 100%
+      );
+    }
+  }
+  /* The phone's wash under «Рассвет»: violet at the left edge instead of the blue, no turquoise anywhere
+     (the user's ask, 27.09). */
+  @container (orientation: portrait) {
+    .home-glow[data-look="dawn"] .home-glow-layer:nth-child(2) { --c: var(--glow-2); }
+  }
+
+  /* «Тёплый центр» (look="warm", variant 5 of design/glow-mixes.html, the user's pick 27.09): on a landscape
+     screen the Молли plashka's colours mirrored across a dome of light rising from the bottom edge, a coral
+     core in the middle, then magenta, violet, blue and mint out to both edges. Always the Молли colours,
+     whatever the palette. Three layers, crisp gradients with no blur, the domes' strength: a soft violet
+     dome underneath, the mirrored spectrum across the screen masked into a dome (mixed in oklch, so magenta
+     and blue come from the path between the stops), and a small coral core. The dome rises past the
+     composer, wrapping its sides, and fades out at the greeting (the user's ask, 27.09: stopping at the
+     composer read as cut off). A portrait screen (the phone) keeps the «Акварель» wash above, all five slots
+     in use; the home screen gives it the Молли palette (the user's ask, 27.09). */
+  @container (orientation: landscape) {
+    .home-glow[data-look="warm"] .home-glow-stack { opacity: var(--glow-dome-strength); }
+    .home-glow[data-look="warm"] .home-glow-layer { --x: 50%; --y: 100%; }
+    .home-glow[data-look="warm"] .home-glow-layer:nth-child(n + 4) { display: none; }
+    .home-glow[data-look="warm"] .home-glow-paint { inset: 0; filter: none; }
+    .home-glow[data-look="warm"] .home-glow-layer:nth-child(1) > .home-glow-paint {
+      background: radial-gradient(
+        ellipse 100% 90% at 50% 108%,
+        color-mix(in srgb, var(--glow-molly-3) 50%, transparent) 0%,
+        color-mix(in srgb, var(--glow-molly-3) 43%, transparent) 45%,
+        color-mix(in srgb, var(--glow-molly-3) 15%, transparent) 76%,
+        transparent 100%
+      );
+    }
+    .home-glow[data-look="warm"] .home-glow-layer:nth-child(2) > .home-glow-paint {
+      background: linear-gradient(
+        90deg in oklch,
+        var(--glow-molly-5) 0%,
+        var(--glow-molly-3) 27%,
+        var(--glow-molly-1) 50%,
+        var(--glow-molly-3) 73%,
+        var(--glow-molly-5) 100%
+      );
+      -webkit-mask-image: radial-gradient(
+        ellipse 92% 84% at 50% 108%,
+        black 35%,
+        rgb(0 0 0 / 0.75) 62%,
+        rgb(0 0 0 / 0.25) 84%,
+        transparent 100%
+      );
+      mask-image: radial-gradient(
+        ellipse 92% 84% at 50% 108%,
+        black 35%,
+        rgb(0 0 0 / 0.75) 62%,
+        rgb(0 0 0 / 0.25) 84%,
+        transparent 100%
+      );
+    }
+    .home-glow[data-look="warm"] .home-glow-layer:nth-child(3) > .home-glow-paint {
+      background: radial-gradient(
+        ellipse 36% 34% at 50% 108%,
+        var(--glow-molly-1) 0%,
+        color-mix(in srgb, var(--glow-molly-1) 86%, transparent) 45%,
+        color-mix(in srgb, var(--glow-molly-1) 30%, transparent) 76%,
+        transparent 100%
+      );
+    }
+  }
+
+  /* «Из угла» (look="corner", variant 4 of design/glow-mixes.html, the home screen's look since 27.09): on a
+     landscape screen the Молли plashka's radial gradient out of the bottom left corner, coral in the corner,
+     then magenta, violet, blue and mint, dissolving upwards under a dome. The stops are pulled in (0/22/44/56/66%
+     instead of every 25%), so the mint lands on the right edge instead of past it (the user's ask, 27.09: the
+     right side was only blue). Always the Молли colours. One layer, crisp, no blur, the domes' strength.
+     It settles towards that corner.
+     A portrait screen (the phone) keeps the «Акварель» wash above in the Молли palette (the home screen
+     passes it), but as bright as the corner: the domes' strength instead of the wash's (the user's ask,
+     27.09). */
+  @container (orientation: landscape) {
+    .home-glow[data-look="corner"] .home-glow-stack { opacity: var(--glow-dome-strength); }
+    .home-glow[data-look="corner"] .home-glow-layer { --x: 0%; --y: 100%; }
+    .home-glow[data-look="corner"] .home-glow-layer:nth-child(n + 2) { display: none; }
+    .home-glow[data-look="corner"] .home-glow-layer:nth-child(1) > .home-glow-paint {
+      inset: 0;
+      filter: none;
+      background: radial-gradient(
+        ellipse 150% 160% at 0% 100%,
+        var(--glow-molly-1) 0%,
+        var(--glow-molly-2) 22%,
+        var(--glow-molly-3) 44%,
+        var(--glow-molly-4) 56%,
+        var(--glow-molly-5) 66%
+      );
+      -webkit-mask-image: var(--corner-dome);
+      mask-image: var(--corner-dome);
+      /* The edge is a dome, not a straight line (the user's ask, 27.09: variant 7 of design/glow-edge.html). An
+         ellipse centred half a screen below the bottom edge, so only its crown shows: beside the composer's
+         sides the colour still reaches its middle line, the crown hides behind the composer and nothing shows
+         above it. A low strip keeps the corners (the coral and the mint) full. */
+      --corner-dome:
+        radial-gradient(
+          ellipse 90% 112% at 50% 150%,
+          black 60%,
+          rgb(0 0 0 / 0.75) 76%,
+          rgb(0 0 0 / 0.3) 88%,
+          transparent 94%
+        ),
+        linear-gradient(to top, black 8%, transparent 26%);
+    }
+  }
+  @container (orientation: portrait) {
+    .home-glow[data-look="corner"] .home-glow-stack { opacity: var(--glow-dome-strength); }
+  }
+
+  /* «Горизонт» (look="horizon", variant 2 of design/gradients.html, the home screen's look since 27.09): a
+     glowing band along the bottom edge, the tool colours running left to right (Видео, Фото, primary,
+     Аудио), mixed in oklch, with the Молли mint after the blue on the right (the user's asks, 27.09: the
+     mint added, then the band flipped to start from the orange). Three layers, crisp, no blur, the domes' strength: a soft primary wash
+     underneath, the band masked into a low ellipse, and a pale core where it touches the edge. It settles
+     towards the bottom centre.
+     A portrait screen (the phone) gets it too, as in that page: the light only in the lower part (the layers
+     start 30% down and fade in over their first quarter), off the greeting; the band is wider than the
+     screen there, so all four colours show across it instead of a violet blob in the middle. */
+  .home-glow[data-look="horizon"] .home-glow-stack { opacity: var(--glow-dome-strength); }
+  .home-glow[data-look="horizon"] .home-glow-layer { --x: 50%; --y: 100%; }
+  .home-glow[data-look="horizon"] .home-glow-layer:nth-child(n + 4) { display: none; }
+  .home-glow[data-look="horizon"] .home-glow-paint {
+    inset: 0;
+    filter: none;
+    -webkit-mask-image: var(--horizon-mask, none);
+    mask-image: var(--horizon-mask, none);
+  }
+  .home-glow[data-look="horizon"] .home-glow-layer:nth-child(1) > .home-glow-paint {
+    background: radial-gradient(
+      ellipse 95% 60% at 50% 104%,
+      color-mix(in srgb, var(--primary) 42%, transparent) 0%,
+      color-mix(in srgb, var(--primary) 15%, transparent) 55%,
+      transparent 100%
+    );
+  }
+  .home-glow[data-look="horizon"] .home-glow-layer:nth-child(2) > .home-glow-paint {
+    /* Mint to blue is mixed in oklab, on its own layer: in oklch its hue path runs out of the sRGB gamut,
+       gets clipped and leaves a vertical seam at the blue stop. The rest stays in oklch. */
+    /* Mirrored (the user's ask, 27.09: start from the orange): the stops run from the right edge (270deg). */
+    background:
+      linear-gradient(270deg in oklab, var(--glow-molly-5) 6%, var(--tool-audio) 24%, transparent 24%),
+      linear-gradient(
+        270deg in oklch,
+        var(--tool-audio) 24%,
+        var(--primary) 44%,
+        var(--tool-photo) 66%,
+        var(--tool-video) 92%
+      );
+    --horizon-mask: radial-gradient(
+      ellipse 74% 48% at 50% 100%,
+      black 0%,
+      rgb(0 0 0 / 0.78) 36%,
+      rgb(0 0 0 / 0.26) 68%,
+      transparent 100%
+    );
+  }
+  .home-glow[data-look="horizon"] .home-glow-layer:nth-child(3) > .home-glow-paint {
+    background: radial-gradient(
+      ellipse 50% 13% at 50% 100%,
+      color-mix(in srgb, var(--paper) 70%, transparent) 0%,
+      color-mix(in srgb, var(--paper) 24%, transparent) 50%,
+      transparent 100%
+    );
+  }
+  @container (orientation: portrait) {
+    /* Blurred on the phone (the user's ask, 27.09): crisp, the colour turns of the band read as vertical
+       stripes on a narrow screen. The box reaches past the sides and the bottom by twice the blur, so the
+       blur never pulls transparency in from the edges; the colour stops move by a few percent with it. */
+    .home-glow[data-look="horizon"] .home-glow-paint {
+      top: 30%;
+      right: -10cqw;
+      bottom: -10cqw;
+      left: -10cqw;
+      filter: blur(5cqw);
+      --horizon-mask: linear-gradient(transparent, black 24%);
+    }
+    /* Raised to the composer's bottom corners (the user's ask, 27.09; it began a good tenth of the screen
+       lower): the band's dome is taller and wider, so beside the composer, at its corners, the colour starts
+       at about their height; in the middle it rises behind the composer and the tongue, never up to the
+       greeting. The primary wash under it rises with it. */
+    .home-glow[data-look="horizon"] .home-glow-layer:nth-child(1) > .home-glow-paint {
+      background: radial-gradient(
+        ellipse 110% 80% at 50% 104%,
+        color-mix(in srgb, var(--primary) 42%, transparent) 0%,
+        color-mix(in srgb, var(--primary) 15%, transparent) 55%,
+        transparent 100%
+      );
+    }
+    .home-glow[data-look="horizon"] .home-glow-layer:nth-child(2) > .home-glow-paint {
+      --horizon-mask: radial-gradient(
+        ellipse 130% 76% at 50% 100%,
+        black 0%,
+        rgb(0 0 0 / 0.78) 36%,
+        rgb(0 0 0 / 0.26) 68%,
+        transparent 100%
+      );
+    }
+  }
+
+  /* The entrance (emil-design-eng): the light turns on, it does not travel. Brightness carries it
+     (--ease-glow, 735ms); the scale only settles from 1.05 to 1 around each patch (--ease-out, 945ms),
+     never below 1, or the layer's box edges would slide into view. Patches light up left to right, 47ms
+     apart, overlapping in time; the grain comes in once the last one is on. About 1.2s in all (1.5× faster
+     than the approved demo, then 15% and 10% faster again: the user's asks, 27.09). A decoration nothing waits for, so it may run longer
+     than UI motion. The first frame starts a hair above zero: the layers get rasterised while still
+     invisible and never come in tile by tile (will-change until they are lit).
+     Plays every time the new chat opens (the user's ask, 27.09); reduced motion only fades in over 400ms. */
+  .home-glow-stack > .home-glow-layer {
+    animation:
+      home-glow-ignite 735ms var(--ease-glow) calc(var(--i) * 47ms) backwards,
+      home-glow-settle 945ms var(--ease-out) calc(var(--i) * 47ms) backwards;
+  }
+  .home-glow-stack > .home-glow-grain {
+    animation: home-glow-fade 475ms var(--ease-glow) 450ms backwards;
+  }
+  .home-glow:not([data-lit]) .home-glow-stack > * {
+    will-change: opacity, transform;
+  }
+  /* The drifting dots (StarsBackground) fade in the way the glow lights up: the same curve, starting a beat
+     after it and done when it is, so on the new chat they arrive together and every other screen brings its
+     dots in the same way (the user's ask, 27.09). Only opacity. */
+  .stars-enter {
+    animation: home-glow-fade 1100ms var(--ease-glow) 200ms backwards;
+  }
+  @keyframes home-glow-ignite {
+    from {
+      opacity: 0.002;
+    }
+  }
+  @keyframes home-glow-settle {
+    from {
+      transform: scale(1.05);
+    }
+  }
+  @keyframes home-glow-fade {
+    from {
+      opacity: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .home-glow-stack > *,
+    .stars-enter {
+      animation: home-glow-fade 400ms var(--ease-out) backwards;
+    }
+  }
+
+  /* A reply's thinking line (transitions.dev «Thinking states», by emil-design-eng). The lines share
+     one grid cell: the old one rises out as the new one rises in from 8px below, 50ms behind it, both
+     through a 2px blur so the swap reads as one line changing, not two crossing. Enter 200ms, exit
+     faster (150ms), both ease-out: one state every ~2 s, never interrupted mid-swap, so keyframes.
+     The shimmer runs on the text inside (it owns `animation` too). */
+  .think-line {
+    grid-area: 1 / 1;
+    min-width: 0;
+  }
+  .think-line[data-state="enter"] {
+    animation: think-in 200ms var(--ease-out) 50ms backwards;
+  }
+  .think-line[data-state="exit"] {
+    animation: think-out 150ms var(--ease-out) forwards;
+  }
+  @keyframes think-in {
+    from {
+      opacity: 0;
+      translate: 0 8px;
+      filter: blur(2px);
+    }
+  }
+  @keyframes think-out {
+    to {
+      opacity: 0;
+      translate: 0 -8px;
+      filter: blur(2px);
+    }
+  }
+
+  /* Streamed words (transitions.dev «Streaming text»): each one resolves out of a 1px blur as it
+     arrives. Only the newest few are moving at once; a word that came before the view mounted stays
+     still. Content arriving, not a reply to a press, so 300ms is fine. */
+  .stream-word {
+    animation: stream-word 300ms var(--ease-out) backwards;
+  }
+  @keyframes stream-word {
+    from {
+      opacity: 0;
+      filter: blur(1px);
+    }
+  }
+
+  /* Two icons in one cell (transitions.dev «Icon swap»): the leaving one shrinks to half into a blur,
+     the coming one grows out of it. Transitions, so a quick second press turns it around mid-way. */
+  .icon-swap {
+    display: inline-grid;
+  }
+  .icon-swap > * {
+    grid-area: 1 / 1;
+    transition:
+      opacity 200ms var(--ease-out),
+      scale 200ms var(--ease-out),
+      filter 200ms var(--ease-out);
+  }
+  .icon-swap[data-state="a"] > :nth-child(2),
+  .icon-swap[data-state="b"] > :nth-child(1) {
+    opacity: 0;
+    scale: 0.5;
+    filter: blur(2px);
+  }
+
+  /* A made picture under its generation effect (image-generation.tsx): the effect's card hides it until
+     the dissolve is done. Where there is no effect (reduced motion, no WebGL) it simply fades in. */
+  .gen-picture {
+    opacity: 0;
+    transition: opacity 300ms ease;
+  }
+  .gen-picture[data-loaded] {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .think-line[data-state="enter"] {
+      animation: home-glow-fade 150ms ease backwards;
+    }
+    .think-line[data-state="exit"] {
+      animation: think-fade-out 150ms ease forwards;
+    }
+    .stream-word {
+      animation: home-glow-fade 200ms ease backwards;
+    }
+    .icon-swap > * {
+      transition: opacity 150ms ease;
+      scale: 1 !important;
+      filter: none !important;
+    }
+  }
+  @keyframes think-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+}
