@@ -1,5 +1,7 @@
 /* The project page's tabs. The address carries the tab (`?tab=media`; «Чаты» has none) through replaceState,
    so «Назад» from a chat lands on it; the session remembers each project's last tab for links without it. */
+import { APP_BASE, withoutBasePath } from "./base-path.ts"
+
 export type ProjectTab = "chats" | "media" | "files"
 const TABS: readonly ProjectTab[] = ["chats", "media", "files"]
 
@@ -16,5 +18,5 @@ export const recallTab = (projectId: string): ProjectTab => lastTabs.get(project
 /* The tab a project page opens on: the address's, when the address is this project's own (a direct load,
    «Назад»); otherwise — coming from another project's page, whose `?tab` is still in the address for a moment —
    the one this project was left on. */
-export const initialTab = (projectId: string, search: string, pathname?: string) =>
-  (pathname === undefined || pathname === `/project/${encodeURIComponent(projectId)}` ? tabFromSearch(search) : null) ?? recallTab(projectId)
+export const initialTab = (projectId: string, search: string, pathname?: string, base = APP_BASE) =>
+  (pathname === undefined || withoutBasePath(pathname, base) === `/project/${encodeURIComponent(projectId)}` ? tabFromSearch(search) : null) ?? recallTab(projectId)

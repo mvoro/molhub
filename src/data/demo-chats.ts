@@ -1,11 +1,12 @@
+import { withBasePath } from "../lib/base-path.ts"
 import type { AssistantMessage, ChatMessage } from "../hooks/use-chat-messages"
 import type { ChatArtifact, ChatAttachment } from "../lib/chat-attachments"
 import { MOLLY_NAME } from "./models.ts"
 
 const attachment = (id: string, name: string, type: string, size: number, src: string): ChatAttachment => ({ id, name, type, size, src })
-const photo = attachment("demo-chat-photo", "Десерт.jpg", "image/jpeg", 14833, "/uploads/cream.jpg")
-const brief = attachment("demo-chat-brief", "Бриф.pdf", "application/pdf", 608, "/demo/brief.pdf")
-const menu = attachment("demo-chat-menu", "Меню.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", 1008, "/demo/menu.docx")
+const photo = attachment("demo-chat-photo", "Десерт.jpg", "image/jpeg", 14833, withBasePath("/uploads/cream.jpg"))
+const brief = attachment("demo-chat-brief", "Бриф.pdf", "application/pdf", 608, withBasePath("/demo/brief.pdf"))
+const menu = attachment("demo-chat-menu", "Меню.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", 1008, withBasePath("/demo/menu.docx"))
 const launch = [
   "# План запуска кофейни", "", "## До открытия",
   "- Утвердить меню и фотографии.", "- Опубликовать адрес и расписание.", "- Проверить форму предзаказа на телефоне.",
@@ -27,14 +28,14 @@ const examples: Record<string, Example> = {
   c5: { request: "Предложите первый экран лендинга кофейни у моря.", reply: "## Кофе, с которым можно не спешить\n\nСвежая выпечка, сезонное меню и столик у окна. Загляните по пути к морю.\n\n**Кнопка:** Посмотреть меню" },
   c6: { request: "Добавьте цены в рублях и отметьте новинки осеннего меню.", reply: "| Напиток | Цена |\n| --- | --- |\n| Капучино | 240 ₽ |\n| Тыквенный латте · новинка | 320 ₽ |\n| Облепиховый чай · новинка | 280 ₽ |\n\nЭто пример цен для макета." },
   c7: { request: "Напишите SQL-запрос: количество клиентов по месяцу регистрации.", reply: "Запрос группирует клиентов по месяцу создания записи. Файл можно открыть рядом с чатом.", artifacts: [document("demo-cohorts", "Когорты.sql", sql, "text/plain")] },
-  c8: { request: "Предложите обработку портрета в стиле аниме.", reply: "Сохраните позу, причёску и выражение лица. Используйте чистый контур, мягкие тени и упрощённый фон.", files: [attachment("demo-portrait", "Портрет.jpg", "image/jpeg", 8385, "/uploads/portrait.jpg")] },
+  c8: { request: "Предложите обработку портрета в стиле аниме.", reply: "Сохраните позу, причёску и выражение лица. Используйте чистый контур, мягкие тени и упрощённый фон.", files: [attachment("demo-portrait", "Портрет.jpg", "image/jpeg", 8385, withBasePath("/uploads/portrait.jpg"))] },
   c9: { request: "Подготовьте английскую версию первого слайда о кофейне.", reply: "## Coffee by the sea\n\nFreshly baked pastries, seasonal drinks, and a quiet table by the window.\n\n**Call to action:** Explore the menu" },
   c10: { request: "Напишите сценарий YouTube Shorts: как приготовить фильтр-кофе.", reply: "**0–3 с:** крупный план чашки.\n\n**3–12 с:** промойте фильтр, добавьте кофе, покажите первый пролив.\n\n**12–22 с:** медленно доливайте воду.\n\n**22–30 с:** готовая чашка — «Попробуйте и подберите помол под свой вкус»." },
   c11: { request: "Как проверить настройку Vite и shadcn?", reply: "1. Запустите dev-сервер.\n2. Проверьте импорт компонента через алиас.\n3. Откройте меню мышью и клавиатурой.\n4. Проверьте мобильную ширину и тёмную тему.\n5. Выполните production-сборку." },
   c12: { request: "Опишите заставку для подкаста о дизайне.", reply: "Инструментальное вступление на 8 секунд: тёплый синтезатор, мягкий бас и лёгкие ударные. Без вокала. В конце уберите ударные, чтобы голос ведущего вошёл без резкой смены громкости." },
   "demo-photo": { request: "Посмотрите на фото десерта. Что улучшить для меню кофейни?", files: [photo], reply: "Десерт хорошо отделён от фона. Для карточки меню я бы оставила больше воздуха сверху, выровняла свет и убрала отвлекающие детали по краям.\n\nОткройте фото, чтобы проверить детали в полном размере." },
   "demo-files": { request: "Проверьте бриф и меню. Подготовьте план запуска отдельным документом.", files: [brief, menu], reply: "Приложенные PDF и Word доступны для просмотра. Собрала пример плана запуска — его можно открыть, скопировать или скачать.", artifacts: [document("demo-launch", "План запуска.md", launch)] },
-  "demo-video": { request: "Разберите этот фрагмент для короткого ролика.", files: [attachment("demo-chat-video", "Прогулка.mp4", "video/mp4", 88534, "/uploads/walk.mp4")], reply: "Начните с движения в кадре, сократите паузу перед поворотом камеры и завершите общим планом. Для вертикальной версии держите главный объект ближе к центру. Видео можно развернуть через кнопку под плеером." },
+  "demo-video": { request: "Разберите этот фрагмент для короткого ролика.", files: [attachment("demo-chat-video", "Прогулка.mp4", "video/mp4", 88534, withBasePath("/uploads/walk.mp4"))], reply: "Начните с движения в кадре, сократите паузу перед поворотом камеры и завершите общим планом. Для вертикальной версии держите главный объект ближе к центру. Видео можно развернуть через кнопку под плеером." },
 }
 
 /** A known demo receives seed content only when it has no saved messages. */

@@ -1,3 +1,4 @@
+import { withBasePath } from "../lib/base-path.ts"
 import type { ProjectColor } from "@/lib/project-colors"
 
 export type ChatType = "text" | "image" | "video" | "audio"
@@ -104,16 +105,16 @@ export const PROJECTS: Project[] = [
     icon: "design",
     instructions: "Пишите тепло и на «вы»: это лендинг кофейни у моря. Цены — в рублях, без «от».",
     files: [
-      { id: "demo-brief", name: "Бриф.pdf", size: 608, type: "application/pdf", addedAt: ago(3), src: "/demo/brief.pdf" },
+      { id: "demo-brief", name: "Бриф.pdf", size: 608, type: "application/pdf", addedAt: ago(3), src: withBasePath("/demo/brief.pdf") },
       {
         id: "demo-menu",
         name: "Меню.docx",
         size: 1008,
         type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         addedAt: ago(12),
-        src: "/demo/menu.docx",
+        src: withBasePath("/demo/menu.docx"),
       },
-      { id: "demo-cream", name: "Десерт.jpg", size: 14833, type: "image/jpeg", addedAt: ago(20), src: "/uploads/cream.jpg" },
+      { id: "demo-cream", name: "Десерт.jpg", size: 14833, type: "image/jpeg", addedAt: ago(20), src: withBasePath("/uploads/cream.jpg") },
     ],
     createdAt: ago(30),
     updatedAt: ago(1),

@@ -1,3 +1,4 @@
+import { withBasePath } from "../lib/base-path.ts"
 /* Tools of the Krea-style workspace: shown in the sidebar and, with their descriptions, in search (⌘K).
    `id` is what the workspace opens (`new:<type>` = a new chat in that mode). Icons are app tiles from
    public/icons: the 1024px originals cropped to the tile and scaled to 96px in public/icons/sm
@@ -15,15 +16,15 @@ export type Tool = {
 export const NEW_CHAT = "new:text"
 
 export const TOOLS: Tool[] = [
-  { id: "new:text", label: "Текст", icon: "/icons/sm/text.png", description: "Ответы и тексты в ChatGPT, Claude и Gemini" },
-  { id: "new:image", label: "Фото", icon: "/icons/sm/photo.png", description: "Картинки и правка фото в Nano Banana и FLUX" },
-  { id: "new:video", label: "Видео", icon: "/icons/sm/video.png", description: "Ролики из текста или фото в Veo, Kling и Seedance" },
-  { id: "new:audio", label: "Аудио", icon: "/icons/sm/audio.png", description: "Песни и музыка в Suno" },
+  { id: "new:text", label: "Текст", icon: withBasePath("/icons/sm/text.png"), description: "Ответы и тексты в ChatGPT, Claude и Gemini" },
+  { id: "new:image", label: "Фото", icon: withBasePath("/icons/sm/photo.png"), description: "Картинки и правка фото в Nano Banana и FLUX" },
+  { id: "new:video", label: "Видео", icon: withBasePath("/icons/sm/video.png"), description: "Ролики из текста или фото в Veo, Kling и Seedance" },
+  { id: "new:audio", label: "Аудио", icon: withBasePath("/icons/sm/audio.png"), description: "Песни и музыка в Suno" },
 ]
 
 /* Rarer tools: behind «Больше» in the sidebar, listed after the main ones in search.
    Roles are not a tool: they have their own row in the navigation (sidebar-nav) and are picked in the text composer. */
 export const MORE_TOOLS: Tool[] = [
-  { id: "carousel", label: "Карусель", icon: "/icons/sm/carousel.png", description: "Серия картинок для соцсетей" },
-  { id: "trends", label: "Тренды", icon: "/icons/sm/trends.png", description: "Популярные работы — повторите по шаблону" },
+  { id: "carousel", label: "Карусель", icon: withBasePath("/icons/sm/carousel.png"), description: "Серия картинок для соцсетей" },
+  { id: "trends", label: "Тренды", icon: withBasePath("/icons/sm/trends.png"), description: "Популярные работы — повторите по шаблону" },
 ]

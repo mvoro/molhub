@@ -1,3 +1,4 @@
+import { withBasePath } from "../lib/base-path.ts"
 import { clientId } from "@/lib/client-id"
 import * as React from "react"
 import { toast } from "sonner"
@@ -49,33 +50,33 @@ type Demo = { src: string; ratio: number; video?: string }
 
 /* Demo pictures until the API lands: the idea pictures, with their own shapes for «Авто». */
 export const PICTURES: Demo[] = [
-  { src: "/presets/ad-poster.jpg", ratio: 640 / 1000 },
-  { src: "/presets/aurora.jpg", ratio: 640 / 799 },
-  { src: "/presets/blueprint.jpg", ratio: 640 / 799 },
-  { src: "/presets/butterfly.jpg", ratio: 640 / 799 },
-  { src: "/presets/carousel-post.jpg", ratio: 1 },
-  { src: "/presets/chair-hill.jpg", ratio: 640 / 794 },
-  { src: "/presets/city-walk.jpg", ratio: 640 / 1137 },
-  { src: "/presets/collage.jpg", ratio: 640 / 799 },
-  { src: "/presets/dance-studio.jpg", ratio: 640 / 1137 },
-  { src: "/presets/embroidery.jpg", ratio: 640 / 799 },
-  { src: "/presets/event-poster.jpg", ratio: 1 },
-  { src: "/presets/flowers-wind.jpg", ratio: 640 / 426 },
-  { src: "/presets/liquid-light.jpg", ratio: 640 / 799 },
-  { src: "/presets/moss-notes.jpg", ratio: 640 / 794 },
-  { src: "/presets/noir.jpg", ratio: 640 / 799 },
-  { src: "/presets/pink-notes.jpg", ratio: 640 / 857 },
-  { src: "/presets/plane-window.jpg", ratio: 640 / 799 },
-  { src: "/presets/product-infographic.jpg", ratio: 640 / 1000 },
-  { src: "/presets/product-shot.jpg", ratio: 640 / 799 },
-  { src: "/presets/reels-cover.jpg", ratio: 640 / 1000 },
-  { src: "/presets/risograph.jpg", ratio: 640 / 799 },
-  { src: "/presets/summer-splash.jpg", ratio: 640 / 1000 },
-  { src: "/presets/sunset-terrace.jpg", ratio: 640 / 1137 },
-  { src: "/presets/watercolor.jpg", ratio: 640 / 799 },
+  { src: withBasePath("/presets/ad-poster.jpg"), ratio: 640 / 1000 },
+  { src: withBasePath("/presets/aurora.jpg"), ratio: 640 / 799 },
+  { src: withBasePath("/presets/blueprint.jpg"), ratio: 640 / 799 },
+  { src: withBasePath("/presets/butterfly.jpg"), ratio: 640 / 799 },
+  { src: withBasePath("/presets/carousel-post.jpg"), ratio: 1 },
+  { src: withBasePath("/presets/chair-hill.jpg"), ratio: 640 / 794 },
+  { src: withBasePath("/presets/city-walk.jpg"), ratio: 640 / 1137 },
+  { src: withBasePath("/presets/collage.jpg"), ratio: 640 / 799 },
+  { src: withBasePath("/presets/dance-studio.jpg"), ratio: 640 / 1137 },
+  { src: withBasePath("/presets/embroidery.jpg"), ratio: 640 / 799 },
+  { src: withBasePath("/presets/event-poster.jpg"), ratio: 1 },
+  { src: withBasePath("/presets/flowers-wind.jpg"), ratio: 640 / 426 },
+  { src: withBasePath("/presets/liquid-light.jpg"), ratio: 640 / 799 },
+  { src: withBasePath("/presets/moss-notes.jpg"), ratio: 640 / 794 },
+  { src: withBasePath("/presets/noir.jpg"), ratio: 640 / 799 },
+  { src: withBasePath("/presets/pink-notes.jpg"), ratio: 640 / 857 },
+  { src: withBasePath("/presets/plane-window.jpg"), ratio: 640 / 799 },
+  { src: withBasePath("/presets/product-infographic.jpg"), ratio: 640 / 1000 },
+  { src: withBasePath("/presets/product-shot.jpg"), ratio: 640 / 799 },
+  { src: withBasePath("/presets/reels-cover.jpg"), ratio: 640 / 1000 },
+  { src: withBasePath("/presets/risograph.jpg"), ratio: 640 / 799 },
+  { src: withBasePath("/presets/summer-splash.jpg"), ratio: 640 / 1000 },
+  { src: withBasePath("/presets/sunset-terrace.jpg"), ratio: 640 / 1137 },
+  { src: withBasePath("/presets/watercolor.jpg"), ratio: 640 / 799 },
   // The photo styles' covers (4:5): a style's demo result is its own cover.
   ...PROMPT_PRESETS.image
-    .filter((preset) => preset.image.startsWith("/presets/styles/"))
+    .filter((preset) => preset.image.startsWith(withBasePath("/presets/styles/")))
     .map((preset) => ({ src: preset.image, ratio: 800 / 999 })),
 ]
 /* Demo clips: the video templates' own footage (all 9:16), so a template's result is its clip. */

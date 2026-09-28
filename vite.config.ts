@@ -5,12 +5,13 @@ import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: process.env.VITE_BASE_PATH || '/',
   // Parallel dev servers can opt into separate dependency caches.
   cacheDir: process.env.AI_HUB_VITE_CACHE_DIR ?? 'node_modules/.vite',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(import.meta.dirname, './src'),
     },
     // img-fx brings React in as a peer; one copy for the whole page, or its hooks break.
     dedupe: ['react', 'react-dom'],

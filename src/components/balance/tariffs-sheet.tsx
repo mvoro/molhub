@@ -1,3 +1,4 @@
+import { withBasePath } from "../../lib/base-path.ts"
 import * as React from "react"
 import { toast } from "sonner"
 
@@ -33,7 +34,7 @@ function Reviews() {
         {[1, 2, 3, 4].map((index) => (
           <span key={index} className="relative -mr-[13.5px] size-9 shrink-0 last:mr-0">
             <img
-              src={`/tariffs/avatar-${index}.png`}
+              src={withBasePath(`/tariffs/avatar-${index}.png`)}
               alt=""
               width={39}
               height={39}
@@ -45,7 +46,7 @@ function Reviews() {
       </div>
       <div className="flex flex-col gap-1">
         <p className="flex items-center gap-1.5 text-sm leading-none font-semibold">
-          <img src="/tariffs/stars.svg" alt="" width={77} height={13} draggable={false} className="h-[13px] w-[77px] select-none" />
+          <img src={withBasePath("/tariffs/stars.svg")} alt="" width={77} height={13} draggable={false} className="h-[13px] w-[77px] select-none" />
           <span className="sr-only">Оценка</span>4,8
         </p>
         <p className="text-xs font-semibold text-muted-foreground">Оценка 15 000+ пользователей</p>
@@ -68,7 +69,7 @@ function BillingSwitch({ billing, onChange }: { billing: Billing; onChange: (bil
       <div className="relative translate-x-[21px]">
         <Badge className="h-auto rounded-lg px-2 py-[3px] text-xs font-medium">экономия до {formatRub(MAX_SAVING)} в год</Badge>
         <img
-          src="/tariffs/arrow.svg"
+          src={withBasePath("/tariffs/arrow.svg")}
           alt=""
           aria-hidden="true"
           width={32}

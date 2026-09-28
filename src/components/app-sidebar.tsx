@@ -1,3 +1,4 @@
+import { withBasePath } from "../lib/base-path.ts"
 import * as React from "react"
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react"
 import {
@@ -140,7 +141,7 @@ function Brand({
         className="h-9 gap-2 rounded-[10px] px-2 hover:bg-transparent active:translate-y-0 group-data-[collapsible=icon]:pointer-events-none"
       >
         <img
-          src="/brand/molecula-mark.svg"
+          src={withBasePath("/brand/molecula-mark.svg")}
           alt=""
           width={20}
           height={20}
@@ -148,14 +149,14 @@ function Brand({
         />
         {/* The wordmark's «молекула» is black; the dark theme swaps in a copy with it in white. */}
         <img
-          src="/brand/molecula-wordmark.svg"
+          src={withBasePath("/brand/molecula-wordmark.svg")}
           alt="Молекула"
           width={85}
           height={20}
           className="sidebar-fade h-5 w-auto dark:hidden"
         />
         <img
-          src="/brand/molecula-wordmark-dark.svg"
+          src={withBasePath("/brand/molecula-wordmark-dark.svg")}
           alt="Молекула"
           width={85}
           height={20}

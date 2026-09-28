@@ -1,3 +1,4 @@
+import { withBasePath } from "../../lib/base-path.ts"
 import * as React from "react"
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react"
 import {
@@ -259,7 +260,7 @@ export function TextComposer({
       className={cn(PILL, "min-w-0 pr-2 pl-2 max-md:max-w-36 md:max-w-56")}
     >
       <Avatar className="size-5 bg-transparent after:hidden">
-        {modelInfo?.family.logo && <AvatarImage src={`/models/${modelInfo.family.logo}.svg`} alt="" />}
+        {modelInfo?.family.logo && <AvatarImage src={withBasePath(`/models/${modelInfo.family.logo}.svg`)} alt="" />}
         <AvatarFallback className="bg-transparent">
           <ModeIcon mode="text" className="size-4" />
         </AvatarFallback>

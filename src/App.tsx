@@ -27,6 +27,7 @@ import { ICON_STROKE, NEW_CHAT_ICON } from "@/lib/icons"
 import { rememberTab, type ProjectTab } from "@/lib/project-tabs"
 import { activeFromPath, pathFromActive } from "@/lib/routes"
 import { cn } from "@/lib/utils"
+import { withBasePath } from "@/lib/base-path"
 
 /* Mobile workspace header. When the menu pushes the workspace aside (ChatGPT app style)
    the burger stays put and toggles it back; everything else sits under the tap-catcher.
@@ -126,7 +127,7 @@ function RouteSync({ active, onUnknown }: { active: string; onUnknown: () => voi
       isProject: (id) => projects.some((project) => project.id === id),
     })
     if (path === null) {
-      window.history.replaceState(null, "", "/")
+      window.history.replaceState(null, "", withBasePath("/"))
       onUnknown()
       return
     }

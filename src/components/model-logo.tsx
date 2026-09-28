@@ -1,3 +1,4 @@
+import { withBasePath } from "../lib/base-path.ts"
 import meta from "@lobehub/icons-static-svg/icons/meta.svg?url"
 import midjourney from "@lobehub/icons-static-svg/icons/midjourney.svg?url"
 import ideogram from "@lobehub/icons-static-svg/icons/ideogram.svg?url"
@@ -54,7 +55,7 @@ const LOGOS: Record<string, { mono: string; color?: string; round?: boolean }> =
   bytedance: { mono: bytedance },
   seedream: { mono: bytedance },
   seedance: { mono: bytedance },
-  molly: { mono: "/models/molly-mono.svg", color: "/models/molly.svg" },
+  molly: { mono: withBasePath("/models/molly-mono.svg"), color: withBasePath("/models/molly.svg") },
   openai: { mono: openai },
   claude: { mono: claude, color: claudeColor },
   gemini: { mono: gemini, color: geminiColor },

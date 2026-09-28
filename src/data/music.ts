@@ -1,3 +1,4 @@
+import { withBasePath } from "../lib/base-path.ts"
 import type { Settings } from "./composer-settings"
 
 /* Music studio (Аудио, Suno-style, after mashagpt.ru/chat/suno): ideas, style tags, voices, sounds and
@@ -102,9 +103,9 @@ export type Song = {
 export const NO_PROJECT = "none"
 
 export const COVERS = [
-  "/presets/liquid-light.jpg", "/presets/aurora.jpg", "/presets/sunset-terrace.jpg", "/presets/pink-notes.jpg",
-  "/presets/moss-notes.jpg", "/presets/summer-splash.jpg", "/presets/city-walk.jpg", "/presets/plane-window.jpg",
-  "/presets/chair-hill.jpg", "/presets/butterfly.jpg", "/presets/flowers-wind.jpg", "/presets/dance-studio.jpg",
+  withBasePath("/presets/liquid-light.jpg"), withBasePath("/presets/aurora.jpg"), withBasePath("/presets/sunset-terrace.jpg"), withBasePath("/presets/pink-notes.jpg"),
+  withBasePath("/presets/moss-notes.jpg"), withBasePath("/presets/summer-splash.jpg"), withBasePath("/presets/city-walk.jpg"), withBasePath("/presets/plane-window.jpg"),
+  withBasePath("/presets/chair-hill.jpg"), withBasePath("/presets/butterfly.jpg"), withBasePath("/presets/flowers-wind.jpg"), withBasePath("/presets/dance-studio.jpg"),
 ]
 
 const DAY = 24 * 60 * 60 * 1000
@@ -113,11 +114,11 @@ const ago = (days: number) => Date.now() - days * DAY
 /* The seed «Демо» music project never migrates to the hub (lib/music-migration.ts): «Кофе у моря» goes
    to the demo hub project «Лендинг кофейни» (`coffee`), the rest start without a project. */
 export const SEED_SONGS: Song[] = [
-  { id: "demo-1", title: "Ночной трамвай", tags: "synthwave, female vocals, dreamy", cover: "/presets/liquid-light.jpg", duration: 214, status: "ready", createdAt: ago(180) },
-  { id: "demo-2", title: "Ночной трамвай", tags: "synthwave, female vocals, dreamy", cover: "/presets/aurora.jpg", duration: 198, status: "ready", createdAt: ago(180) },
-  { id: "demo-3", projectId: "coffee", title: "Кофе у моря", tags: "bossa nova, nylon guitar, relaxed", cover: "/presets/sunset-terrace.jpg", duration: 176, status: "ready", createdAt: ago(181) },
-  { id: "demo-4", projectId: "coffee", title: "Кофе у моря", tags: "bossa nova, nylon guitar, relaxed", cover: "/presets/summer-splash.jpg", duration: 189, status: "ready", createdAt: ago(181) },
-  { id: "demo-5", title: "Последний звонок", tags: "pop-punk, fast guitars, gang vocals", cover: "/presets/pink-notes.jpg", duration: 152, status: "ready", createdAt: ago(182) },
+  { id: "demo-1", title: "Ночной трамвай", tags: "synthwave, female vocals, dreamy", cover: withBasePath("/presets/liquid-light.jpg"), duration: 214, status: "ready", createdAt: ago(180) },
+  { id: "demo-2", title: "Ночной трамвай", tags: "synthwave, female vocals, dreamy", cover: withBasePath("/presets/aurora.jpg"), duration: 198, status: "ready", createdAt: ago(180) },
+  { id: "demo-3", projectId: "coffee", title: "Кофе у моря", tags: "bossa nova, nylon guitar, relaxed", cover: withBasePath("/presets/sunset-terrace.jpg"), duration: 176, status: "ready", createdAt: ago(181) },
+  { id: "demo-4", projectId: "coffee", title: "Кофе у моря", tags: "bossa nova, nylon guitar, relaxed", cover: withBasePath("/presets/summer-splash.jpg"), duration: 189, status: "ready", createdAt: ago(181) },
+  { id: "demo-5", title: "Последний звонок", tags: "pop-punk, fast guitars, gang vocals", cover: withBasePath("/presets/pink-notes.jpg"), duration: 152, status: "ready", createdAt: ago(182) },
 ]
 
 /* «3:34» */

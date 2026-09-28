@@ -10,6 +10,7 @@ import { useHub, type PinKey } from "@/hooks/use-hub"
 import type { ProjectColor } from "@/lib/project-colors"
 import { rememberTab, type ProjectTab } from "@/lib/project-tabs"
 import { copyText } from "@/lib/clipboard"
+import { withBasePath } from "@/lib/base-path"
 
 /* What chat and project menus do, wherever they are (sidebar rows, the project page, a chat's header):
    navigation plus the flows that live above a single row — the project dialog, delete confirmations,
@@ -111,7 +112,7 @@ export function EntityActionsProvider({
     navigate,
     openProject,
     share: (kind, id) => {
-      const url = `${window.location.origin}/${kind === "chat" ? "c" : "project"}/${id}`
+      const url = `${window.location.origin}${withBasePath(`/${kind === "chat" ? "c" : "project"}/${encodeURIComponent(id)}`)}`
       setCopyNotice("")
       void copyText(url).then(
         () => setCopyNotice("Ссылка скопирована"),

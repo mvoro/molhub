@@ -1,32 +1,51 @@
-# React + TypeScript + Vite
+# Molhub · AI Hub
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Русскоязычный интерфейс AI Hub: чаты, фото, видео, музыка, роли и проекты.
+React 19, TypeScript, Vite, Tailwind CSS и shadcn/ui.
 
-Currently, two official plugins are available:
+**Сайт:** https://mvoro.github.io/molhub/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Локальный запуск
 
-## React Compiler
+Нужен Node.js 24.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```sh
+npm ci
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Проверки
+
+```sh
+npm test
+npm run build
+npm run lint
+```
+
+Storybook: `npm run storybook` (порт 6007).
+
+## GitHub Pages
+
+Каждый push в `main` запускает `.github/workflows/deploy-pages.yml`:
+установка зависимостей, тесты, сборка и публикация на GitHub Pages.
+В Settings → Pages источником выбран GitHub Actions.
+
+В CI `VITE_BASE_PATH=/molhub/` задаёт префикс ресурсов, навигации и ссылок.
+Локальная разработка остаётся на `/`.
+`404.html` содержит приложение, чтобы прямые ссылки на чаты, проекты и студии
+открывались на статическом хостинге. При таком входе Pages возвращает HTTP 404,
+а интерфейс восстанавливает нужный раздел.
+
+Проверить сборку с тем же адресом локально:
+
+```sh
+VITE_BASE_PATH=/molhub/ npm run build
+VITE_BASE_PATH=/molhub/ npm run preview
+```
+
+Это клиентский прототип с демоданными и локальным состоянием браузера.
+GitHub Pages публикует интерфейс; сервер генерации и синхронизация между
+пользователями в этот репозиторий не входят.
+
+Для отката отмените проблемный коммит в `main` и отправьте изменение:
+workflow автоматически опубликует предыдущую версию приложения.

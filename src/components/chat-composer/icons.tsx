@@ -1,3 +1,4 @@
+import { withBasePath } from "../../lib/base-path.ts"
 import {
   CropIcon,
   Copy01Icon,
@@ -51,7 +52,7 @@ export function MoleculeIcon({ className, colored = false }: { className?: strin
   if (colored) {
     return (
       <img
-        src="/brand/molecula-mark.svg"
+        src={withBasePath("/brand/molecula-mark.svg")}
         alt=""
         aria-hidden="true"
         draggable={false}

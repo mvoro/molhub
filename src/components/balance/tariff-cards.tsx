@@ -1,3 +1,4 @@
+import { withBasePath } from "../../lib/base-path.ts"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Tick02Icon } from "@hugeicons/core-free-icons"
 
@@ -114,7 +115,7 @@ export function TariffCard({ tariff, billing, onChoose, onModels }: { tariff: Ta
               </p>
               <p className="pl-[18px] text-[10px] font-semibold text-foreground/35">{tariff.once ? "один раз" : "каждый месяц"}</p>
               <img
-                src="/tariffs/mark-card.svg"
+                src={withBasePath("/tariffs/mark-card.svg")}
                 alt=""
                 aria-hidden="true"
                 draggable={false}
@@ -199,7 +200,7 @@ export function PackCard({ pack, onChoose }: { pack: TokenPack; onChoose: () => 
           className="pointer-events-none absolute -right-0.5 -bottom-0.5 h-[62px] w-16 overflow-clip rounded-br-[20px] md:h-[94px] md:w-24"
         >
           <img
-            src="/tariffs/mark-pack.svg"
+            src={withBasePath("/tariffs/mark-pack.svg")}
             alt=""
             draggable={false}
             width={118}
