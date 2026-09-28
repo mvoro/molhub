@@ -295,38 +295,39 @@ function ProjectItem({
       setInstant(lastInput() === "keyboard")
       onOpenChange(open)
     }} asChild>
-      <SidebarMenuItem className="group/project" data-instant={instant}>
-        <CollapsibleTrigger asChild>
-          <SidebarMenuButton
-            isActive={active}
-            aria-current={active ? "page" : undefined}
-            className={cn(
-              ROW,
-              "pr-16 md:pointer-fine:pr-[9px] md:pointer-fine:group-hover/menu-item:pr-16 md:pointer-fine:group-focus-within/menu-item:pr-16 md:pointer-fine:group-has-data-[state=open]/menu-item:pr-16"
-            )}
+      <li className="group/project" data-instant={instant}>
+        {/* Keep hover/focus scoped to the header, outside the nested chat list. */}
+        <div className="sidebar-project-row relative">
+          <CollapsibleTrigger asChild>
+            <SidebarMenuButton
+              isActive={active}
+              aria-current={active ? "page" : undefined}
+              className={cn(ROW, "pr-(--project-action-space)")}
+            >
+              <HugeiconsIcon strokeWidth={ICON_STROKE} icon={icon} color={projectColor(color)} />
+              <MarqueeLabel text={name} />
+            </SidebarMenuButton>
+          </CollapsibleTrigger>
+          {/* A new chat in a project starts from the project's page, like ChatGPT. */}
+          <SidebarMenuAction
+            data-project-action=""
+            aria-label={`Новый чат в проекте «${name}»`}
+            onClick={() => actions.select(project.id)}
+            className={cn(ACTION, "right-8")}
           >
-            <HugeiconsIcon strokeWidth={ICON_STROKE} icon={icon} color={projectColor(color)} />
-            <MarqueeLabel text={name} />
-          </SidebarMenuButton>
-        </CollapsibleTrigger>
-        {/* A new chat in a project starts from the project's page, like ChatGPT. */}
-        <SidebarMenuAction
-          aria-label={`Новый чат в проекте «${name}»`}
-          onClick={() => actions.select(project.id)}
-          className={cn(ACTION, HOVER_ONLY, "right-8")}
-        >
-          <HugeiconsIcon strokeWidth={ICON_STROKE} icon={NEW_CHAT_ICON} />
-        </SidebarMenuAction>
-        <AppMenu>
-          <AppMenuTrigger asChild>
-            <SidebarMenuAction aria-label={`Действия с проектом «${name}»`} className={cn(ACTION, HOVER_ONLY, "right-1.5")}>
-              <HugeiconsIcon strokeWidth={ICON_STROKE} icon={MoreHorizontalIcon} />
-            </SidebarMenuAction>
-          </AppMenuTrigger>
-          <AppMenuContent side="bottom" align="start" onCloseAutoFocus={rename.onCloseAutoFocus}>
-            <ProjectMenuItems project={project} pinned={pinned} onRename={rename.start} showOpen />
-          </AppMenuContent>
-        </AppMenu>
+            <HugeiconsIcon strokeWidth={ICON_STROKE} icon={NEW_CHAT_ICON} />
+          </SidebarMenuAction>
+          <AppMenu>
+            <AppMenuTrigger asChild>
+              <SidebarMenuAction data-project-action="" aria-label={`Действия с проектом «${name}»`} className={cn(ACTION, "right-1.5")}>
+                <HugeiconsIcon strokeWidth={ICON_STROKE} icon={MoreHorizontalIcon} />
+              </SidebarMenuAction>
+            </AppMenuTrigger>
+            <AppMenuContent side="bottom" align="start" onCloseAutoFocus={rename.onCloseAutoFocus}>
+              <ProjectMenuItems project={project} pinned={pinned} onRename={rename.start} showOpen />
+            </AppMenuContent>
+          </AppMenu>
+        </div>
         {/* Radix disables transitions on its measured element. Animate an inner grid instead,
             keeping it mounted so rapid toggles reverse smoothly. Closed chats leave the tab order. */}
         <CollapsibleContent
@@ -346,7 +347,7 @@ function ProjectItem({
             </div>
           </div>
         </CollapsibleContent>
-      </SidebarMenuItem>
+      </li>
     </Collapsible>
   )
 }

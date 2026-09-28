@@ -298,6 +298,29 @@
   .doc-view :where(img) { max-width: 100%; height: auto; border-radius: 6px; }
   .doc-view :where(blockquote) { border-left: 3px solid var(--border); padding-left: 1em; color: var(--muted-foreground); }
 
+  /* Project actions stay visible on touch; desktop reveals only the interacted header. */
+  .sidebar-project-row {
+    --project-action-space: 4rem;
+  }
+  @media (min-width: 768px) and (pointer: fine) {
+    .sidebar-project-row {
+      --project-action-space: 9px;
+    }
+    .sidebar-project-row > [data-project-action] {
+      opacity: 0;
+      pointer-events: none;
+    }
+    /* Pointer clicks retain focus, so :focus-within would leave actions visible after mouseout.
+       Only keyboard focus, this row's hover, or its actual actions menu reveals the controls. */
+    .sidebar-project-row:is(:hover, :has(:focus-visible), :has(> [data-project-action][data-state="open"])) {
+      --project-action-space: 4rem;
+    }
+    .sidebar-project-row:is(:hover, :has(:focus-visible), :has(> [data-project-action][data-state="open"])) > [data-project-action] {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
   /* Sidebar rows and menu items share one feel: same hover fade, same press. */
   [data-sidebar="menu-button"],
   [data-sidebar="menu-action"],
