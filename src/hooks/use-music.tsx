@@ -1,5 +1,6 @@
 import { clientId } from "@/lib/client-id"
 import * as React from "react"
+import { useAuth } from "@/hooks/use-auth"
 import { toast } from "sonner"
 
 import { COVERS, SEED_SONGS, type Song } from "@/data/music"
@@ -69,6 +70,7 @@ export function MusicProvider({
   children: React.ReactNode
 }) {
   const hub = useHub()
+  const { authenticated } = useAuth()
   // Timers don't survive a reload: anything still «generating» from last time has finished by now.
   const [songs, setSongs] = useStoredState<Song[]>("ai-hub:music-songs", SEED_SONGS)
   const [settled, setSettled] = React.useState(false)
@@ -94,6 +96,7 @@ export function MusicProvider({
   // the imported projects and the relinked songs land together.
   const [migrated, setMigrated] = React.useState(() => readLegacy() === null)
   React.useEffect(() => {
+    if (!authenticated) return
     const raw = readLegacy()
     if (raw === null) return
     const { hub: current, songs: stored } = latest.current
@@ -108,20 +111,20 @@ export function MusicProvider({
       dropLegacy()
       setMigrated(true)
     }
-  }, [setSongs])
+  }, [setSongs, authenticated])
 
   // A song whose project is gone (deleted from the sidebar, the project page or the archive) loses the link;
   // it stays in the studio under «Без проекта» (D10).
   const known = React.useMemo(() => new Set(hub.projects.map((project) => project.id)), [hub.projects])
   React.useEffect(() => {
-    if (!migrated || !songs.some((song) => song.projectId && !known.has(song.projectId))) return
+    if (!authenticated || !migrated || !songs.some((song) => song.projectId && !known.has(song.projectId))) return
     setSongs((prev) => prev.map((song) => (song.projectId && !known.has(song.projectId) ? { ...song, projectId: undefined } : song)))
-  }, [migrated, known, songs, setSongs])
+  }, [authenticated, migrated, known, songs, setSongs])
 
   const value = React.useMemo<Music>(
     () => ({
-      songs,
-      playingId,
+      songs: authenticated ? songs : [],
+      playingId: authenticated ? playingId : null,
       createSongs: ({ projectId, title, tags, model, prompt, settings }) => {
         const now = Date.now()
         const takes: Song[] = [0, 1].map((take) => ({
@@ -168,7 +171,7 @@ export function MusicProvider({
         studioVisible.current = visible
       },
     }),
-    [songs, playingId, setSongs, hub]
+    [songs, playingId, setSongs, hub, authenticated]
   )
 
   return <MusicContext.Provider value={value}>{children}</MusicContext.Provider>

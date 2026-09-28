@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useAuth } from "@/hooks/use-auth"
 import { toast } from "sonner"
 
 import { ProjectDialog } from "@/components/project-dialog"
@@ -79,6 +80,7 @@ export function EntityActionsProvider({
   children: React.ReactNode
 }) {
   const hub = useHub()
+  const { requireAuth } = useAuth()
   const { isMobile, setOpenMobile } = useSidebar()
   const [projectDialog, setProjectDialog] = React.useState<DialogState>({ open: false })
   const [copyNotice, setCopyNotice] = React.useState("")
@@ -158,7 +160,7 @@ export function EntityActionsProvider({
       else toast("Чат убран из проекта", { action: { label: "Отменить", onClick: () => hub.moveChat(chat.id, before) } })
     },
     confirmDelete: (target) => setConfirm({ open: true, target }),
-    openProjectDialog: (options) => setProjectDialog({ open: true, ...options }),
+    openProjectDialog: (options) => { if (requireAuth()) setProjectDialog({ open: true, ...options }) },
   }
 
   const runConfirm = () => {

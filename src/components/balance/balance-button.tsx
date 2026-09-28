@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useAuth } from "@/hooks/use-auth"
 
 import { TariffsSheet } from "@/components/balance/tariffs-sheet"
 import { MoleculeIcon } from "@/components/chat-composer/icons"
@@ -11,13 +12,14 @@ import { cn } from "@/lib/utils"
    height, on the row of the phone's burger and of the studios' toolbar. Opens the tariffs sheet. App.tsx
    places it: over the workspace card on desktop, in the phone header next to «Новый чат». */
 export function BalanceButton({ className, tabIndex }: { className?: string; tabIndex?: number }) {
+  const { requireAuth } = useAuth()
   const [open, setOpen] = React.useState(false)
 
   return (
     <>
       <Button
         variant="secondary"
-        onClick={() => setOpen(true)}
+        onClick={() => { if (requireAuth()) setOpen(true) }}
         tabIndex={tabIndex}
         aria-label={`Баланс: ${formatNumber(BALANCE)} ${tokensWord(BALANCE)}. Тарифы и пакеты`}
         className={cn(

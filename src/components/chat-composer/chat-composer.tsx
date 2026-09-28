@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useAuth, useComposerAuth } from "@/hooks/use-auth"
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react"
 import {
   Add01Icon,
@@ -173,6 +174,9 @@ export function ChatComposer({
   ref?: React.Ref<ComposerHandle>
 }) {
   const mobile = useIsMobile()
+  const { requireAuth } = useAuth()
+  const authVariant = mode === "image" ? "nano" : "models"
+  const authCapture = useComposerAuth(authVariant)
   const [text, setText] = React.useState(() => draft?.text ?? "")
   const [files, setFiles] = React.useState<ComposerFile[]>(() => draft?.files ?? [])
   // The attachment open in the viewer; it stays set while the viewer closes, so it leaves whole.
@@ -242,8 +246,9 @@ export function ChatComposer({
     [onDraftChange]
   )
 
-  const change: SettingsProps["onChange"] = (key, value) =>
-    setAllSettings((prev) => ({ ...prev, [mode]: { ...prev[mode], [key]: value } }))
+  const change: SettingsProps["onChange"] = (key, value) => {
+    if (requireAuth(authVariant)) setAllSettings((prev) => ({ ...prev, [mode]: { ...prev[mode], [key]: value } }))
+  }
 
   const toFile = (file: File): ComposerFile => ({
     id: clientId(),
@@ -255,6 +260,7 @@ export function ChatComposer({
   })
 
   const addFiles = (incoming: FileList | File[]) => {
+    if (!requireAuth(authVariant)) return
     if (!attachmentsAllowed) return toast.error("Эта модель не поддерживает вложения. Выберите другую модель.")
     let list = Array.from(incoming)
     if (mode === "image" || mode === "video") {
@@ -295,6 +301,7 @@ export function ChatComposer({
   }
 
   const applyTemplate = (preset: PromptPreset) => {
+    if (!requireAuth(authVariant)) return
     setTemplate(preset)
     setMissingPhoto(0)
     if (preset.ratio) setAllSettings((prev) => ({ ...prev, video: normalizeSettings("video", models.video, { ...prev.video, ratio: preset.ratio! }) }))
@@ -344,6 +351,7 @@ export function ChatComposer({
 
   const submit = () => {
     if (!ready || busy) return
+    if (!requireAuth(authVariant)) return
     // No photo for the template: its tile turns red, the send pill shakes its head and a toast says why
     // (one toast, replaced on every refusal).
     if (shownTemplate && !photo) {
@@ -397,6 +405,7 @@ export function ChatComposer({
 
   // Model selection remains within the requested output type, including Molly.
   const pickModel = (type: ChatType, name: string) => {
+    if (!requireAuth(authVariant)) return
     const next: ComposerMode = locked ? mode : type
     setModels((prev) => ({ ...prev, [next]: name }))
     setAllSettings(prev => ({ ...prev, [next]: next === "audio" ? normalizeSettings(next, name, prev[next]) : { ...defaultSettings(next, name), ...(next === "text" ? { role: prev[next].role } : {}) } }))
@@ -408,6 +417,7 @@ export function ChatComposer({
 
   // One hidden input serves every source: the kind only changes what the OS picker offers.
   const attach = (kind: "file" | "photo" | "media" | "camera") => {
+    if (!requireAuth(authVariant)) return
     if (!attachmentsAllowed) return toast.error("Эта модель не поддерживает вложения. Выберите другую модель.")
     const input = fileRef.current
     if (!input) return
@@ -427,6 +437,7 @@ export function ChatComposer({
   // Presets from the gallery fill the field and their settings; «Загрузить фото» opens the picker.
   React.useImperativeHandle(ref, () => ({
     fill: (next, options) => {
+      if (options?.patch && !requireAuth(authVariant)) return
       setText(next)
       if (options?.patch) setAllSettings((prev) => ({ ...prev, [mode]: normalizeSettings(mode, model, { ...prev[mode], ...options.patch }) }))
       requestAnimationFrame(() => {
@@ -702,7 +713,7 @@ export function ChatComposer({
   )
 
   return (
-    <div className={cn("flex w-full flex-col", className)}>
+    <div {...authCapture} className={cn("flex w-full flex-col", className)}>
       {chosenRole && (
         <div role="group" aria-label={`Активная роль: ${chosenRole.name}`} className="mx-5 flex min-h-9 items-center gap-2 rounded-t-[18px] bg-muted/50 py-1 pr-1.5 pl-3.5 text-[13px] text-foreground dark:bg-card/50">
           <HugeiconsIcon icon={SETTING_ICON.role} strokeWidth={ICON_STROKE} className="size-4 shrink-0" />

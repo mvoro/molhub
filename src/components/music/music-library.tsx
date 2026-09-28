@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useAuth } from "@/hooks/use-auth"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { toast } from "sonner"
 import {
@@ -106,6 +107,7 @@ function useGroups() {
 
 export function MusicLibrary({ openProjectId, onOpenProject }: { openProjectId: string | null; onOpenProject: (id: string | null) => void }) {
   const music = useMusic()
+  const { requireAuth } = useAuth()
   const hub = useHub()
   const [query, setQuery] = React.useState("")
   const [sort, setSort] = React.useState<Sort>("new")
@@ -207,7 +209,7 @@ export function MusicLibrary({ openProjectId, onOpenProject }: { openProjectId: 
 
       <div role="list" aria-label="Проекты" className="-mx-2 flex flex-col gap-1">
         <div role="listitem">
-          <Button variant="ghost" onClick={() => setDialog({ kind: "new-project" })} className={cn("h-auto w-full justify-start gap-4 rounded-2xl p-2 text-[15px] font-normal", PRESS)}>
+          <Button variant="ghost" onClick={() => { if (requireAuth()) setDialog({ kind: "new-project" }) }} className={cn("h-auto w-full justify-start gap-4 rounded-2xl p-2 text-[15px] font-normal", PRESS)}>
             <span className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-muted">
               <HugeiconsIcon icon={Add01Icon} strokeWidth={ICON_STROKE} className="size-5!" />
             </span>

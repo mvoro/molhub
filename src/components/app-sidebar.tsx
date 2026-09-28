@@ -1,5 +1,6 @@
 import { withBasePath } from "../lib/base-path.ts"
 import * as React from "react"
+import { useAuth } from "@/hooks/use-auth"
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react"
 import {
   Add01Icon,
@@ -482,7 +483,7 @@ function SidebarSection({
 }
 
 /* Demo account until auth lands. Initials stay legible on the primary colour in both themes. */
-const USER = { name: "Анна", initials: "АМ", plan: "Бесплатный" }
+const USER = { initials: "М", plan: "Бесплатный" }
 
 function UserAvatar({ className }: { className?: string }) {
   return (
@@ -538,6 +539,14 @@ function AccountMenu({
   onSelect: (id: string) => void
 }) {
   const { isMobile } = useSidebar()
+  const { authenticated, requireAuth, signOut, session } = useAuth()
+  const name = session?.email ?? "Аккаунт Молекулы"
+
+  if (!authenticated) return (
+    <Button onClick={() => requireAuth()} className="h-10 w-full rounded-full group-data-[collapsible=icon]:px-0" aria-label="Войти">
+      {collapsed ? <HugeiconsIcon icon={UserGroupIcon} strokeWidth={ICON_STROKE} /> : "Войти"}
+    </Button>
+  )
 
   return (
     <SidebarMenu>
@@ -547,12 +556,12 @@ function AccountMenu({
             <SidebarMenuButton
               size="lg"
               tooltip="Аккаунт"
-              aria-label={`Аккаунт: Анна Миронова, ${USER.plan}`}
+              aria-label={`Аккаунт: ${name}, ${USER.plan}`}
               className="gap-2.5 rounded-[10px] px-[9px] data-[state=open]:bg-sidebar-accent group-data-[collapsible=icon]:size-9 group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:p-0"
             >
               <UserAvatar className="size-7 group-data-[collapsible=icon]:size-9 group-data-[collapsible=icon]:rounded-[10px]" />
               <span className="sidebar-fade grid min-w-0 flex-1 leading-tight group-data-[collapsible=icon]:hidden">
-                <span className="truncate text-sm">Анна Миронова</span>
+                <span className="truncate text-sm">{name}</span>
                 <span className="truncate text-xs text-sidebar-muted-foreground">{USER.plan}</span>
               </span>
             </SidebarMenuButton>
@@ -566,7 +575,7 @@ function AccountMenu({
             <AppMenuItem onSelect={() => onSelect("profile")} className="h-auto py-2 pl-2.5">
               <UserAvatar className="size-8" />
               <span className="grid min-w-0 flex-1 leading-tight">
-                <span className="truncate">{USER.name}</span>
+                <span className="truncate">{name}</span>
                 <span className="truncate text-muted-foreground!">{USER.plan}</span>
               </span>
               <HugeiconsIcon strokeWidth={ICON_STROKE} icon={ArrowRight01Icon} className="text-muted-foreground!" />
@@ -579,7 +588,7 @@ function AccountMenu({
             ))}
             <ThemeMenu />
             <AppMenuSeparator />
-            <AppMenuItem icon={Logout03Icon}>Выйти</AppMenuItem>
+            <AppMenuItem icon={Logout03Icon} onSelect={() => { signOut(); onSelect(NEW_CHAT) }}>Выйти</AppMenuItem>
           </AppMenuContent>
         </AppMenu>
       </SidebarMenuItem>
@@ -597,6 +606,7 @@ export function AppSidebar({
   const { state, isMobile, setOpenMobile } = useSidebar()
   const collapsed = state === "collapsed" && !isMobile
   const hub = useHub()
+  const { authenticated } = useAuth()
   const [sections, setSections] = useStoredState<Record<SectionId, boolean>>("ai-hub:sidebar-sections", {
     pinned: true,
     projects: true,
@@ -787,7 +797,7 @@ export function AppSidebar({
               </SidebarGroup>
             )}
 
-            <SidebarSection
+            {authenticated && <SidebarSection
               label="Недавние чаты"
               className="pb-6"
               {...sectionProps("chats")}
@@ -825,7 +835,7 @@ export function AppSidebar({
               {chats.map((chat) => (
                 <ChatItem key={chat.id} chat={chat} active={active === chat.id} pinned={false} />
               ))}
-            </SidebarSection>
+            </SidebarSection>}
           </div>
           )}
         </SidebarContent>

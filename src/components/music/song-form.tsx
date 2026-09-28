@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useAuth, useComposerAuth } from "@/hooks/use-auth"
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react"
 import {
   Add01Icon,
@@ -85,6 +86,8 @@ export function SongForm({
   onCreated: (projectId: string) => void
 }) {
   const music = useMusic()
+  const { requireAuth } = useAuth()
+  const authCapture = useComposerAuth()
   const hub = useHub()
   const [mode, setMode] = React.useState<Mode>("auto")
   const [version, setVersion] = React.useState(SUNO[0].name)
@@ -118,7 +121,7 @@ export function SongForm({
   const ready = mode === "auto" ? description.trim() !== "" : lyrics.trim() !== "" || styles.trim() !== ""
 
   const create = () => {
-    if (!ready) return
+    if (!ready || !requireAuth()) return
     if (mode === "detailed" && styles.length > styleLimit) return toast.error(`Сократите стиль до ${styleLimit} символов для ${version}`)
     const source = mode === "auto" ? description : styles || lyrics
     const name = title.trim() || titleFrom(mode === "auto" ? description : lyrics.split("\n").find((line) => line && !line.startsWith("[")) ?? styles)
@@ -160,7 +163,7 @@ export function SongForm({
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div {...authCapture} className="flex min-h-0 flex-1 flex-col">
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain px-4 pt-1 pb-4 md:px-5 md:pt-5">
         <div className="flex items-center gap-2">
           <Segmented value={mode} onValueChange={(value) => setMode(value as Mode)} aria-label="Режим" className="flex-1 [&>*]:h-9">

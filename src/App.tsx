@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useAuth } from "@/hooks/use-auth"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Menu02Icon } from "@hugeicons/core-free-icons"
 
@@ -205,25 +206,37 @@ function WorkspaceContent({ active, onSelect, roleLaunch, newChatKey, visible }:
   )
 }
 
+const PRIVATE_SECTIONS = new Set(["roles", "profile", "subscription", "referral", "billing", "memory"])
+
 export default function App() {
+  const { authenticated, requireAuth } = useAuth()
   // The screen comes from the address (lib/routes.ts); the text tool, at «/», is the default screen
   // (26.09): there is no separate home page. Back and forward bring the screen of their address.
-  const [active, setActive] = React.useState(() => activeFromPath(window.location.pathname))
+  const [requestedActive, setActive] = React.useState(() => activeFromPath(window.location.pathname))
+  const active = !authenticated && PRIVATE_SECTIONS.has(requestedActive) ? NEW_CHAT : requestedActive
   const [roleLaunch, setRoleLaunch] = React.useState<RoleLaunch>()
   const [newChatKey, setNewChatKey] = React.useState(0)
   const navigate = React.useCallback((id: string) => {
+    if (PRIVATE_SECTIONS.has(id) && !requireAuth()) return
     setRoleLaunch(undefined)
     setActive(id)
-  }, [])
+  }, [requireAuth])
   const select = React.useCallback((id: string) => {
     if (id === NEW_CHAT || id === "new") setNewChatKey((key) => key + 1)
     navigate(id)
   }, [navigate])
   const startRole = React.useCallback((role: Role, prompt?: string) => {
+    if (!requireAuth()) return
     setRoleLaunch({ role, prompt })
     setNewChatKey((key) => key + 1)
     setActive(NEW_CHAT)
-  }, [])
+  }, [requireAuth])
+  React.useEffect(() => {
+    if (!authenticated && PRIVATE_SECTIONS.has(requestedActive)) {
+      requireAuth()
+      setActive(NEW_CHAT)
+    }
+  }, [requestedActive, authenticated, requireAuth])
   React.useEffect(() => {
     const restore = () => { setRoleLaunch(undefined); setActive(activeFromPath(window.location.pathname)) }
     window.addEventListener("popstate", restore)

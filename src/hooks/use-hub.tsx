@@ -1,5 +1,6 @@
 import { clientId } from "@/lib/client-id"
 import * as React from "react"
+import { useAuth } from "@/hooks/use-auth"
 
 import { CHATS, REVIEW_CHATS, PROJECTS, type Chat, type ChatType, type Project, type ProjectFile } from "@/data/chats"
 import { useStoredState } from "@/hooks/use-stored-state"
@@ -52,6 +53,7 @@ const makePreview = (text: string) => text.split("\n")[0].slice(0, 140)
 
 /* Chats, projects and pins for the sidebar and search. Mirrored to localStorage until the API lands. */
 export function HubProvider({ children }: { children: React.ReactNode }) {
+  const { authenticated } = useAuth()
   const [chats, setChats] = useStoredState<Chat[]>("ai-hub:chats", CHATS)
   const [projects, setProjects] = useStoredState<Project[]>("ai-hub:projects", PROJECTS)
   const [pins, setPins] = useStoredState<PinKey[]>("ai-hub:pins", [])
@@ -177,7 +179,8 @@ export function HubProvider({ children }: { children: React.ReactNode }) {
     }
   }, [chats, projects, pins, setChats, setProjects, setPins])
 
-  return <HubContext.Provider value={hub}>{children}</HubContext.Provider>
+  const visibleHub = React.useMemo<Hub>(() => authenticated ? hub : { ...hub, chats: [], projects: [], pins: [] }, [hub, authenticated])
+  return <HubContext.Provider value={visibleHub}>{children}</HubContext.Provider>
 }
 
 export function useHub() {

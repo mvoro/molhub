@@ -67,6 +67,10 @@
 }
 
 :root {
+    --auth-media-foreground: oklch(1 0 0);
+    --auth-media-shade: oklch(0.08 0 0 / 0.95);
+    --auth-media-mid: oklch(0.08 0 0 / 0.5);
+    --auth-media-hover: oklch(1 0 0 / 0.15);
     /* Molly's send-button gradient (composer-chat .mode-auto .composer-submit.colored). */
     --gradient-molly: linear-gradient(110deg, #ff723f, #dc3fff 28%, #7a3fff 55%, #3f8cff 80%, #00ffd1);
     /* Tool colours, sampled from the sidebar tiles (public/icons). */
@@ -1144,5 +1148,12 @@
     to {
       opacity: 0;
     }
+  }
+}
+
+@layer components {
+  .auth-showcase {
+    color: var(--auth-media-foreground);
+    background: var(--auth-media-shade);
   }
 }

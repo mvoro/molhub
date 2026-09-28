@@ -1,5 +1,6 @@
 import { withBasePath } from "../../lib/base-path.ts"
 import * as React from "react"
+import { useAuth, useComposerAuth } from "@/hooks/use-auth"
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react"
 import {
   AiMagicIcon,
@@ -91,6 +92,9 @@ export function TextComposer({
   className,
 }: TextComposerProps) {
   const mobile = useIsMobile()
+  const { requireAuth } = useAuth()
+  const authVariant = "models"
+  const authCapture = useComposerAuth(authVariant)
   const [text, setText] = React.useState("")
   const [model, setModel] = React.useState(initial?.model ?? DEFAULT_MODEL.text)
   const [settings, setSettings] = React.useState<Settings>(() => initial?.settings ?? defaultSettings("text"))
@@ -117,6 +121,7 @@ export function TextComposer({
 
   const submit = () => {
     if (!filled || busy) return
+    if (!requireAuth(authVariant)) return
     voice.stop()
     onSend({ text: text.trim(), files: attachments.files, frames: [null, null], template: null, photo: null, mode: "text", model, settings, cost })
     setText("")
@@ -125,6 +130,7 @@ export function TextComposer({
 
   /* Another tab of the picker opens that tool; Молли is a text model wherever she is picked. */
   const pickModel = (type: ChatType, name: string) => {
+    if (!requireAuth(authVariant)) return
     if (type !== "text" && !isMolly(name) && !locked) {
       onModeChange?.(type)
       return
@@ -340,7 +346,7 @@ export function TextComposer({
   })
 
   return (
-    <div className={cn("flex w-full flex-col", className)}>
+    <div {...authCapture} className={cn("flex w-full flex-col", className)}>
       <div
         className={cn(CARD, attachments.dragging && "border-primary/40 ring-2 ring-primary/20")}
         {...attachments.dragProps}
