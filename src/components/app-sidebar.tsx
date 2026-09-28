@@ -304,7 +304,6 @@ function ProjectItem({
             <SidebarMenuButton
               isActive={active}
               aria-current={active ? "page" : undefined}
-              onClick={() => actions.select(project.id)}
               className={cn(ROW, "pr-(--project-action-space)")}
             >
               <HugeiconsIcon strokeWidth={ICON_STROKE} icon={icon} color={projectColor(color)} />
