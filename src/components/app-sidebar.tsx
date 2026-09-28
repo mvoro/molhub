@@ -89,7 +89,7 @@ const SHOW_HISTORY = true
 const HISTORY_TYPE = "text"
 
 /* Project chats sit under their project, text aligned with the project's name. */
-const INDENT = "pl-[37px]"
+const INDENT = "ml-7 w-[calc(100%-28px)]"
 /* Row actions: on hover/focus with a mouse, always visible on touch. */
 const ACTION =
   "top-1.5 size-6 rounded-md data-[state=open]:bg-sidebar-accent pointer-coarse:top-2 pointer-coarse:after:absolute pointer-coarse:after:-inset-2 [&>svg]:size-4!"
@@ -255,14 +255,14 @@ function ProjectItem({
   active,
   pinned,
   expanded,
-  onSelect,
+  onOpenChange,
   children,
 }: {
   project: Project
   active: boolean
   pinned: boolean
   expanded: boolean
-  onSelect: () => void
+  onOpenChange: (open: boolean) => void
   children: React.ReactNode
 }) {
   const { updateProject } = useHub()
@@ -291,9 +291,9 @@ function ProjectItem({
   }
 
   return (
-    <Collapsible open={expanded} onOpenChange={() => {
+    <Collapsible open={expanded} onOpenChange={(open) => {
       setInstant(lastInput() === "keyboard")
-      onSelect()
+      onOpenChange(open)
     }} asChild>
       <SidebarMenuItem className="group/project" data-instant={instant}>
         <CollapsibleTrigger asChild>
@@ -327,18 +327,22 @@ function ProjectItem({
             <ProjectMenuItems project={project} pinned={pinned} onRename={rename.start} showOpen />
           </AppMenuContent>
         </AppMenu>
-        {/* Keep the panel mounted so rapid toggles reverse smoothly. Inert removes closed chats from
-            keyboard navigation; the line shares the project glyph's theme-aware colour token. */}
+        {/* Radix disables transitions on its measured element. Animate an inner grid instead,
+            keeping it mounted so rapid toggles reverse smoothly. Closed chats leave the tab order. */}
         <CollapsibleContent
           forceMount
           inert={!expanded}
           aria-hidden={!expanded}
-          className="grid transition-[grid-template-rows,opacity] duration-(--sidebar-duration) ease-(--ease-out) data-[state=closed]:grid-rows-[0fr] data-[state=closed]:opacity-0 data-[state=closed]:duration-(--duration-fast) data-[state=open]:grid-rows-[1fr] motion-reduce:transition-none group-data-[instant=true]/project:transition-none"
         >
-          <div className="min-h-0 overflow-hidden">
-            <div className="relative py-1">
-              <span aria-hidden="true" className="pointer-events-none absolute top-1 bottom-1 left-[18px] w-px rounded-full" style={{ backgroundColor: projectColor(color) }} />
-              {children}
+          <div
+            data-open={expanded}
+            className="grid transition-[grid-template-rows,opacity] duration-(--sidebar-duration) ease-(--ease-out) data-[open=false]:grid-rows-[0fr] data-[open=false]:opacity-0 data-[open=false]:duration-(--duration-fast) data-[open=true]:grid-rows-[1fr] motion-reduce:transition-none group-data-[instant=true]/project:transition-none"
+          >
+            <div className="min-h-0 overflow-hidden">
+              <div className="relative py-1">
+                <span aria-hidden="true" className="pointer-events-none absolute top-1 bottom-1 left-[18px] w-px rounded-full" style={{ backgroundColor: projectColor(color) }} />
+                {children}
+              </div>
             </div>
           </div>
         </CollapsibleContent>
@@ -440,8 +444,13 @@ function SidebarSection({
   className?: string
   children: React.ReactNode
 }) {
+  const [instant, setInstant] = React.useState(false)
+
   return (
-    <Collapsible open={open} onOpenChange={onOpenChange} className="group/section">
+    <Collapsible open={open} onOpenChange={(next) => {
+      setInstant(lastInput() === "keyboard")
+      onOpenChange(next)
+    }} className="group/section">
       <SidebarGroup className={cn("px-1.5 pt-3", className)}>
         <SidebarGroupLabel asChild className="h-8 w-fit gap-1 px-[9px] text-sm font-normal text-sidebar-muted-foreground hover:text-sidebar-foreground">
           <CollapsibleTrigger>
@@ -456,15 +465,15 @@ function SidebarSection({
           </CollapsibleTrigger>
         </SidebarGroupLabel>
         {actions}
-        {/* grid-rows transition instead of keyframes: interruptible, and closing is faster than opening. */}
-        <CollapsibleContent
-          forceMount
-          inert={!open}
-          className="grid transition-[grid-template-rows] duration-200 ease-(--ease-out) data-[state=closed]:grid-rows-[0fr] data-[state=closed]:duration-150 data-[state=open]:grid-rows-[1fr] motion-reduce:transition-none"
-        >
-          <SidebarGroupContent className="min-h-0 overflow-hidden">
-            <SidebarMenu>{children}</SidebarMenu>
-          </SidebarGroupContent>
+        <CollapsibleContent forceMount inert={!open} aria-hidden={!open}>
+          <div
+            data-open={open}
+            className={cn("grid transition-[grid-template-rows] duration-(--sidebar-duration) ease-(--ease-out) data-[open=false]:grid-rows-[0fr] data-[open=false]:duration-(--duration-fast) data-[open=true]:grid-rows-[1fr] motion-reduce:transition-none", instant && "transition-none")}
+          >
+            <SidebarGroupContent className="min-h-0 overflow-hidden">
+              <SidebarMenu>{children}</SidebarMenu>
+            </SidebarGroupContent>
+          </div>
         </CollapsibleContent>
       </SidebarGroup>
     </Collapsible>
@@ -615,11 +624,6 @@ export function AppSidebar({
   const entity = useEntityActions()
   const actions: SidebarActions = { ...entity, select }
 
-  const sectionProps = (id: SectionId) => ({
-    open: sections[id] ?? true,
-    onOpenChange: (open: boolean) => setSections((prev) => ({ ...prev, [id]: open })),
-  })
-
   const { pins } = hub
   const isPinned = (key: PinKey) => pins.includes(key)
   const liveChats = hub.chats.filter((chat) => !chat.archived)
@@ -638,6 +642,21 @@ export function AppSidebar({
   // «Недавние чаты» lists the text tool's history; a pinned chat of any kind stays under «Закреплённые».
   const chats = liveChats.filter((chat) => chat.type === HISTORY_TYPE && !chat.projectId && !isPinned(`chat:${chat.id}`))
 
+  const sectionProps = (id: SectionId) => ({
+    open: sections[id] ?? true,
+    onOpenChange: (open: boolean) => {
+      setSections((prev) => ({ ...prev, [id]: open }))
+      if (!open && id !== "chats") {
+        const sectionProjects = id === "projects" ? projects : liveProjects.filter((project) => isPinned(`project:${project.id}`))
+        setExpandedProjects((prev) => ({
+          ...prev,
+          // Explicit false also overrides automatic expansion of the currently selected project.
+          ...Object.fromEntries(sectionProjects.map((project) => [project.id, false])),
+        }))
+      }
+    },
+  })
+
   /* The open project (or the project of the open chat) lists its chats right under its row. */
   const openProjectId =
     liveChats.find((chat) => chat.id === active)?.projectId ??
@@ -649,7 +668,10 @@ export function AppSidebar({
     return (
       <ProjectItem key={project.id} project={project} active={active === project.id} pinned={projectPinned}
         expanded={expanded}
-        onSelect={() => setExpandedProjects((prev) => ({ ...prev, [project.id]: !expanded }))}
+        onOpenChange={(open) => {
+          setExpandedProjects((prev) => ({ ...prev, [project.id]: open }))
+          if (open && children.length === 0) select(project.id)
+        }}
       >
         {children.length ? (
           <SidebarMenu aria-label={`Чаты проекта «${project.name}»`}>
@@ -657,10 +679,7 @@ export function AppSidebar({
           </SidebarMenu>
         ) : (
           <Empty className="items-start gap-1 rounded-none py-1 pr-3 pl-[37px] text-left text-wrap">
-            <EmptyDescription className="text-sm leading-5">Здесь появятся чаты проекта</EmptyDescription>
-            <Button variant="link" className="h-7 p-0 text-sm font-normal" onClick={() => select(project.id)}>
-              Начать чат
-            </Button>
+            <EmptyDescription className="text-sm leading-5">Пока нет чатов</EmptyDescription>
           </Empty>
         )}
       </ProjectItem>
