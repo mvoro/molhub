@@ -20,14 +20,13 @@ import {
 } from "@/components/ui/command"
 import { ProjectGlyph } from "@/components/project/project-appearance"
 import { Separator } from "@/components/ui/separator"
-import { MORE_TOOLS, NEW_CHAT, TOOLS } from "@/data/tools"
+import { MORE_TOOLS, TOOLS } from "@/data/tools"
 import { useHub } from "@/hooks/use-hub"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { ICON_STROKE } from "@/lib/icons"
 import { cn } from "@/lib/utils"
 
-/* No «Текст»: it is the new chat (the user's ask, 27.09), as in the sidebar's list. */
-const ALL_TOOLS = [...TOOLS.filter((tool) => tool.id !== NEW_CHAT), ...MORE_TOOLS]
+const ALL_TOOLS = [...TOOLS, ...MORE_TOOLS]
 
 const GROUP =
   "p-0 **:[[cmdk-group-heading]]:px-3 **:[[cmdk-group-heading]]:pt-1 **:[[cmdk-group-heading]]:pb-2 **:[[cmdk-group-heading]]:text-sm **:[[cmdk-group-heading]]:font-normal"
@@ -104,14 +103,14 @@ export function ChatSearch({
               Нет результатов
             </CommandEmpty>
             {/* Rows show the name only (the user's ask, 27.09), but the description stays searchable: «suno» finds Аудио. */}
-            <CommandGroup heading="Инструменты" className={cn(GROUP, "pb-2")}>
+            <CommandGroup heading="Инструменты" className={cn(GROUP, "pb-2 [&_[cmdk-group-items]]:grid [&_[cmdk-group-items]]:grid-cols-2 [&_[cmdk-group-items]]:gap-x-1")}>
               {ALL_TOOLS.map((tool) => (
                 <CommandItem
                   key={tool.id}
                   value={tool.id}
                   keywords={[tool.label, tool.description]}
                   onSelect={() => onSelect(tool.id)}
-                  className="h-12 gap-3 rounded-xl! px-3 text-base pointer-coarse:data-selected:bg-transparent pointer-coarse:active:bg-muted [&>svg:last-child]:hidden"
+                  className="h-12 min-w-0 gap-3 rounded-xl! px-3 text-base pointer-coarse:data-selected:bg-transparent pointer-coarse:active:bg-muted [&>svg:last-child]:hidden"
                 >
                   <img src={tool.icon} alt="" width={32} height={32} draggable={false} className="size-8 max-w-none shrink-0 select-none" />
                   <span className="min-w-0 flex-1 truncate">{tool.label}</span>

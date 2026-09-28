@@ -16,7 +16,7 @@ export type Tool = {
 export const NEW_CHAT = "new:text"
 
 export const TOOLS: Tool[] = [
-  { id: "new:text", label: "Текст", icon: withBasePath("/icons/sm/text.png"), description: "Ответы и тексты в ChatGPT, Claude и Gemini" },
+  { id: "new:text", label: "Текст", icon: withBasePath("/icons/sm/text-primary.png"), description: "Ответы и тексты в ChatGPT, Claude и Gemini" },
   { id: "new:image", label: "Фото", icon: withBasePath("/icons/sm/photo.png"), description: "Картинки и правка фото в Nano Banana и FLUX" },
   { id: "new:video", label: "Видео", icon: withBasePath("/icons/sm/video.png"), description: "Ролики из текста или фото в Veo, Kling и Seedance" },
   { id: "new:audio", label: "Аудио", icon: withBasePath("/icons/sm/audio.png"), description: "Песни и музыка в Suno" },

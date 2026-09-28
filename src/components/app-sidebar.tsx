@@ -24,6 +24,7 @@ import {
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import { Empty, EmptyDescription } from "@/components/ui/empty"
 import {
   Collapsible,
   CollapsibleContent,
@@ -75,6 +76,7 @@ import { useStoredState } from "@/hooks/use-stored-state"
 import { useTheme, type Theme } from "@/hooks/use-theme"
 import { ICON_STROKE, NEW_CHAT_ICON, projectIcon } from "@/lib/icons"
 import { projectColor } from "@/lib/project-colors"
+import { lastInput } from "@/lib/input-modality"
 import { cn } from "@/lib/utils"
 
 
@@ -254,16 +256,19 @@ function ProjectItem({
   pinned,
   expanded,
   onSelect,
+  children,
 }: {
   project: Project
   active: boolean
   pinned: boolean
-  expanded?: boolean
+  expanded: boolean
   onSelect: () => void
+  children: React.ReactNode
 }) {
   const { updateProject } = useHub()
   const actions = useSidebarActions()
   const rename = useRename()
+  const [instant, setInstant] = React.useState(false)
   const { name, color } = project
   const icon = projectIcon(project.icon)
 
@@ -286,39 +291,59 @@ function ProjectItem({
   }
 
   return (
-    <SidebarMenuItem>
-      <SidebarMenuButton
-        isActive={active}
-        aria-current={active ? "page" : undefined}
-        onClick={onSelect}
-        aria-expanded={expanded}
-        className={cn(
-          ROW,
-          "pr-16 md:pointer-fine:pr-[9px] md:pointer-fine:group-hover/menu-item:pr-16 md:pointer-fine:group-focus-within/menu-item:pr-16 md:pointer-fine:group-has-data-[state=open]/menu-item:pr-16"
-        )}
-      >
-        <HugeiconsIcon strokeWidth={ICON_STROKE} icon={icon} color={projectColor(color)} />
-        <MarqueeLabel text={name} />
-      </SidebarMenuButton>
-      {/* A new chat in a project starts from the project's page, like ChatGPT. */}
-      <SidebarMenuAction
-        aria-label={`Новый чат в проекте «${name}»`}
-        onClick={() => actions.select(project.id)}
-        className={cn(ACTION, HOVER_ONLY, "right-8")}
-      >
-        <HugeiconsIcon strokeWidth={ICON_STROKE} icon={NEW_CHAT_ICON} />
-      </SidebarMenuAction>
-      <AppMenu>
-        <AppMenuTrigger asChild>
-          <SidebarMenuAction aria-label={`Действия с проектом «${name}»`} className={cn(ACTION, HOVER_ONLY, "right-1.5")}>
-            <HugeiconsIcon strokeWidth={ICON_STROKE} icon={MoreHorizontalIcon} />
-          </SidebarMenuAction>
-        </AppMenuTrigger>
-        <AppMenuContent side="bottom" align="start" onCloseAutoFocus={rename.onCloseAutoFocus}>
-          <ProjectMenuItems project={project} pinned={pinned} onRename={rename.start} showOpen />
-        </AppMenuContent>
-      </AppMenu>
-    </SidebarMenuItem>
+    <Collapsible open={expanded} onOpenChange={() => {
+      setInstant(lastInput() === "keyboard")
+      onSelect()
+    }} asChild>
+      <SidebarMenuItem className="group/project" data-instant={instant}>
+        <CollapsibleTrigger asChild>
+          <SidebarMenuButton
+            isActive={active}
+            aria-current={active ? "page" : undefined}
+            className={cn(
+              ROW,
+              "pr-16 md:pointer-fine:pr-[9px] md:pointer-fine:group-hover/menu-item:pr-16 md:pointer-fine:group-focus-within/menu-item:pr-16 md:pointer-fine:group-has-data-[state=open]/menu-item:pr-16"
+            )}
+          >
+            <HugeiconsIcon strokeWidth={ICON_STROKE} icon={icon} color={projectColor(color)} />
+            <MarqueeLabel text={name} />
+          </SidebarMenuButton>
+        </CollapsibleTrigger>
+        {/* A new chat in a project starts from the project's page, like ChatGPT. */}
+        <SidebarMenuAction
+          aria-label={`Новый чат в проекте «${name}»`}
+          onClick={() => actions.select(project.id)}
+          className={cn(ACTION, HOVER_ONLY, "right-8")}
+        >
+          <HugeiconsIcon strokeWidth={ICON_STROKE} icon={NEW_CHAT_ICON} />
+        </SidebarMenuAction>
+        <AppMenu>
+          <AppMenuTrigger asChild>
+            <SidebarMenuAction aria-label={`Действия с проектом «${name}»`} className={cn(ACTION, HOVER_ONLY, "right-1.5")}>
+              <HugeiconsIcon strokeWidth={ICON_STROKE} icon={MoreHorizontalIcon} />
+            </SidebarMenuAction>
+          </AppMenuTrigger>
+          <AppMenuContent side="bottom" align="start" onCloseAutoFocus={rename.onCloseAutoFocus}>
+            <ProjectMenuItems project={project} pinned={pinned} onRename={rename.start} showOpen />
+          </AppMenuContent>
+        </AppMenu>
+        {/* Keep the panel mounted so rapid toggles reverse smoothly. Inert removes closed chats from
+            keyboard navigation; the line shares the project glyph's theme-aware colour token. */}
+        <CollapsibleContent
+          forceMount
+          inert={!expanded}
+          aria-hidden={!expanded}
+          className="grid transition-[grid-template-rows,opacity] duration-(--sidebar-duration) ease-(--ease-out) data-[state=closed]:grid-rows-[0fr] data-[state=closed]:opacity-0 data-[state=closed]:duration-(--duration-fast) data-[state=open]:grid-rows-[1fr] motion-reduce:transition-none group-data-[instant=true]/project:transition-none"
+        >
+          <div className="min-h-0 overflow-hidden">
+            <div className="relative py-1">
+              <span aria-hidden="true" className="pointer-events-none absolute top-1 bottom-1 left-[18px] w-px rounded-full" style={{ backgroundColor: projectColor(color) }} />
+              {children}
+            </div>
+          </div>
+        </CollapsibleContent>
+      </SidebarMenuItem>
+    </Collapsible>
   )
 }
 
@@ -622,16 +647,23 @@ export function AppSidebar({
     const children = liveChats.filter((chat) => chat.projectId === project.id)
     const expanded = expandedProjects[project.id] ?? openProjectId === project.id
     return (
-      <React.Fragment key={project.id}>
-        <ProjectItem project={project} active={active === project.id} pinned={projectPinned}
-          expanded={children.length ? expanded : undefined}
-          onSelect={() => {
-            if (children.length) setExpandedProjects((prev) => ({ ...prev, [project.id]: !expanded }))
-            else select(project.id)
-          }}
-        />
-        {expanded && children.map((chat) => <ChatItem key={chat.id} chat={chat} indent active={active === chat.id} pinned={isPinned(`chat:${chat.id}`)} />)}
-      </React.Fragment>
+      <ProjectItem key={project.id} project={project} active={active === project.id} pinned={projectPinned}
+        expanded={expanded}
+        onSelect={() => setExpandedProjects((prev) => ({ ...prev, [project.id]: !expanded }))}
+      >
+        {children.length ? (
+          <SidebarMenu aria-label={`Чаты проекта «${project.name}»`}>
+            {children.map((chat) => <ChatItem key={chat.id} chat={chat} indent active={active === chat.id} pinned={isPinned(`chat:${chat.id}`)} />)}
+          </SidebarMenu>
+        ) : (
+          <Empty className="items-start gap-1 rounded-none py-1 pr-3 pl-[37px] text-left text-wrap">
+            <EmptyDescription className="text-sm leading-5">Здесь появятся чаты проекта</EmptyDescription>
+            <Button variant="link" className="h-7 p-0 text-sm font-normal" onClick={() => select(project.id)}>
+              Начать чат
+            </Button>
+          </Empty>
+        )}
+      </ProjectItem>
     )
   }
 
