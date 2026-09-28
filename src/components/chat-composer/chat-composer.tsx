@@ -1,6 +1,6 @@
 import * as React from "react"
 import { useAuth, useComposerAuth } from "@/hooks/use-auth"
-import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react"
+import { HugeiconsIcon } from "@hugeicons/react"
 import {
   Add01Icon,
   ArrowDown01Icon,
@@ -169,7 +169,7 @@ export function ChatComposer({
   footer?: React.ReactNode
   /* Where files dropped on the window go instead of the attachments, with the zone's own words — a project's
      «Файлы» tab (spec §8). One window drop zone, so the two never compete. */
-  drop?: { title: string; limit: string; icon?: IconSvgElement; onDrop: (files: File[]) => void }
+  drop?: { title: string; limit: string; onDrop: (files: File[]) => void }
   className?: string
   ref?: React.Ref<ComposerHandle>
 }) {
@@ -921,7 +921,7 @@ export function ChatComposer({
           if (prompt) settingsProps.onRolePrompt?.(prompt)
         }}
       />
-      <FileDropOverlay active={dropping} title={drop?.title} icon={drop?.icon} limit={drop?.limit ?? `${maxFiles === 1 ? "1 файл" : `До ${maxFiles} файлов`}, каждый до 25 МБ`} />
+      <FileDropOverlay active={dropping} title={drop?.title} limit={drop?.limit ?? `${maxFiles === 1 ? "1 файл" : `До ${maxFiles} файлов`}, каждый до 25 МБ`} />
     </div>
   )
 }

@@ -78,6 +78,7 @@ import { useTheme, type Theme } from "@/hooks/use-theme"
 import { ICON_STROKE, NEW_CHAT_ICON, projectIcon } from "@/lib/icons"
 import { projectColor } from "@/lib/project-colors"
 import { lastInput } from "@/lib/input-modality"
+import { authAccountName } from "@/lib/auth"
 import { cn } from "@/lib/utils"
 
 
@@ -303,6 +304,7 @@ function ProjectItem({
             <SidebarMenuButton
               isActive={active}
               aria-current={active ? "page" : undefined}
+              onClick={() => actions.select(project.id)}
               className={cn(ROW, "pr-(--project-action-space)")}
             >
               <HugeiconsIcon strokeWidth={ICON_STROKE} icon={icon} color={projectColor(color)} />
@@ -540,11 +542,12 @@ function AccountMenu({
 }) {
   const { isMobile } = useSidebar()
   const { authenticated, requireAuth, signOut, session } = useAuth()
-  const name = session?.email ?? "Аккаунт Молекулы"
+  const name = session ? authAccountName(session) : ""
 
+  if (!authenticated && collapsed) return null
   if (!authenticated) return (
-    <Button onClick={() => requireAuth()} className="h-10 w-full rounded-full group-data-[collapsible=icon]:px-0" aria-label="Войти">
-      {collapsed ? <HugeiconsIcon icon={UserGroupIcon} strokeWidth={ICON_STROKE} /> : "Войти"}
+    <Button onClick={() => requireAuth()} className="h-10 w-full rounded-full" aria-label="Войти">
+      Войти
     </Button>
   )
 
@@ -681,7 +684,6 @@ export function AppSidebar({
         expanded={expanded}
         onOpenChange={(open) => {
           setExpandedProjects((prev) => ({ ...prev, [project.id]: open }))
-          if (open && children.length === 0) select(project.id)
         }}
       >
         {children.length ? (

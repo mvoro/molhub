@@ -2,6 +2,7 @@ import * as React from "react"
 import { useAuth } from "@/hooks/use-auth"
 
 import { TariffsSheet } from "@/components/balance/tariffs-sheet"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { MoleculeIcon } from "@/components/chat-composer/icons"
 import { Button } from "@/components/ui/button"
 import { BALANCE, formatNumber, tokensWord } from "@/data/tariffs"
@@ -12,8 +13,10 @@ import { cn } from "@/lib/utils"
    height, on the row of the phone's burger and of the studios' toolbar. Opens the tariffs sheet. App.tsx
    places it: over the workspace card on desktop, in the phone header next to «Новый чат». */
 export function BalanceButton({ className, tabIndex }: { className?: string; tabIndex?: number }) {
-  const { requireAuth } = useAuth()
+  const { authenticated, requireAuth } = useAuth()
   const [open, setOpen] = React.useState(false)
+
+  if (!authenticated) return <ThemeToggle className={className} tabIndex={tabIndex} />
 
   return (
     <>

@@ -1,5 +1,5 @@
 import * as React from "react"
-import { FolderAddIcon, NoteEditIcon } from "@hugeicons/core-free-icons"
+import { NoteEditIcon } from "@hugeicons/core-free-icons"
 
 import { saveChatConfig } from "@/components/chat-composer/chat-config"
 import { ChatComposer, emptyDraft, type ComposerDraft, type ComposerMessage } from "@/components/chat-composer/chat-composer"
@@ -99,7 +99,6 @@ export function ProjectView({ project, onSelect }: { project: Project; onSelect:
           ? {
               title: "Отпустите, чтобы добавить в проект",
               limit: "До 25 МБ, до 20 файлов в проекте",
-              icon: FolderAddIcon,
               onDrop: (list) => void files.add(list),
             }
           : undefined

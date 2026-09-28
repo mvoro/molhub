@@ -1,12 +1,10 @@
 import { createPortal } from "react-dom"
-import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react"
-import { Attachment01Icon } from "@hugeicons/core-free-icons"
 
-import { ICON_STROKE } from "@/lib/icons"
+import { withBasePath } from "@/lib/base-path"
 import { cn } from "@/lib/utils"
 
 /* The zone over the whole window while files are dragged: the page fades behind a dashed frame with
-   the attach glyph and the limits. Purely visual (no pointer events of its own; the window takes the
+   the file fan illustration and the limits. Purely visual (no pointer events of its own; the window takes the
    drop). It comes in with its opacity and settles from 0.98 (150ms, --ease-out) and leaves faster
    (100ms), as a transition, so the enter/leave flicker of a drag retargets it instead of restarting it;
    reduced motion keeps the fade only. Stays mounted, so the exit plays. */
@@ -14,13 +12,10 @@ export function FileDropOverlay({
   active,
   title = "Перетащите файлы сюда",
   limit,
-  icon = Attachment01Icon,
 }: {
   active: boolean
   title?: string
   limit: string
-  /* The clip means «into the message»; a drop that goes elsewhere (a project's files) says where. */
-  icon?: IconSvgElement
 }) {
   if (typeof document === "undefined") return null
   return createPortal(
@@ -38,9 +33,18 @@ export function FileDropOverlay({
           "scale-[0.98] transition-transform duration-100 ease-(--ease-out) group-data-[state=open]/drop:scale-100 group-data-[state=open]/drop:duration-150 motion-reduce:scale-100 motion-reduce:transition-none"
         )}
       >
-        <span className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-          <HugeiconsIcon icon={icon} strokeWidth={ICON_STROKE} className="size-7" />
-        </span>
+        {/* Trim only the PNG's transparent vertical padding; keep the approved artwork undistorted. */}
+        <div aria-hidden="true" className="relative aspect-[8/5] w-48 shrink-0 md:w-56">
+          <img
+            src={withBasePath("/illustrations/file-drop-fan.png")}
+            alt=""
+            width={1254}
+            height={1254}
+            draggable={false}
+            decoding="async"
+            className="absolute inset-0 size-full object-cover"
+          />
+        </div>
         <div className="flex flex-col gap-1.5 px-6">
           <p role={active ? "status" : undefined} className="text-lg leading-tight font-medium text-balance md:text-xl">
             {title}

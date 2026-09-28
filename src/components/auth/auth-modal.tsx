@@ -1,6 +1,6 @@
 import * as React from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { ArrowLeft01Icon, ArrowRight01Icon, PauseIcon, PlayIcon, Tick02Icon } from "@hugeicons/core-free-icons"
+import { ArrowLeft01Icon, ArrowRight01Icon, Tick02Icon } from "@hugeicons/core-free-icons"
 import { AppSheet, AppSheetCloseButton, AppSheetContent, AppSheetDescription, AppSheetTitle } from "@/components/ui/app-sheet"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Spinner } from "@/components/ui/spinner"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { validDemoCode, validEmail, type AuthSession, type AuthVariant } from "@/lib/auth"
+import { demoSocialSession, validDemoCode, validEmail, type AuthSession, type AuthVariant } from "@/lib/auth"
 import { withBasePath } from "@/lib/base-path"
 import { ICON_STROKE } from "@/lib/icons"
 import { cn } from "@/lib/utils"
@@ -36,9 +36,7 @@ const asset = (file: string) => withBasePath(`/auth/${file}`)
 
 function Showcase({ variant, active }: { variant: AuthVariant; active: boolean }) {
   const slides = SLIDES[variant]
-  const [index, setIndex] = React.useState(0)
-  const [paused, setPaused] = React.useState(false)
-  const [interacting, setInteracting] = React.useState(false)
+  const [{ index, revision }, setPosition] = React.useState({ index: 0, revision: 0 })
   const [reduced, setReduced] = React.useState(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches)
   const video = React.useRef<HTMLVideoElement>(null)
   React.useEffect(() => {
@@ -47,29 +45,27 @@ function Showcase({ variant, active }: { variant: AuthVariant; active: boolean }
     query.addEventListener("change", change)
     return () => query.removeEventListener("change", change)
   }, [])
-  const playing = active && !paused && !interacting && !reduced
-  React.useEffect(() => {
-    if (!playing) return
-    const timer = window.setTimeout(() => setIndex((current) => (current + 1) % slides.length), variant === "nano" ? 8000 : 5000)
-    return () => window.clearTimeout(timer)
-  }, [index, playing, slides.length, variant])
+  const playing = active && !reduced
+  const duration = variant === "nano" ? 8000 : 5000
+  const choose = (next: number) => setPosition((current) => ({ index: next, revision: current.revision + 1 }))
   React.useEffect(() => {
     const media = video.current
     if (!media) return
-    if (playing) void media.play().catch(() => {})
+    if (playing) {
+      media.currentTime = 0
+      void media.play().catch(() => {})
+    }
     else media.pause()
-  }, [index, playing])
+  }, [index, revision, playing])
   const slide = slides[index]
   return (
-    <section aria-label="Возможности Молекулы" className="auth-showcase relative isolate flex min-h-48 flex-col overflow-hidden md:min-h-full"
-      onMouseEnter={() => setInteracting(true)} onMouseLeave={() => setInteracting(false)}
-      onFocusCapture={() => setInteracting(true)} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setInteracting(false) }}>
+    <section aria-label="Возможности Молекулы" className="auth-showcase relative isolate flex h-57 shrink-0 flex-col overflow-hidden md:h-full md:min-h-full">
       {"video" in slide ? (
         <video key={slide.video} ref={video} src={asset(slide.video)} poster={asset(slide.image)} muted playsInline loop preload="metadata" aria-hidden="true"
           className="absolute inset-0 size-full object-cover" />
       ) : <img key={slide.image} src={asset(slide.image)} alt="" className="absolute inset-0 size-full object-cover" />}
       <div className="absolute inset-0 bg-linear-to-t from-(--auth-media-shade) via-transparent to-transparent max-md:via-(--auth-media-mid)" />
-      <div className="relative flex min-h-48 flex-1 flex-col justify-end gap-4 p-5 pt-16 md:gap-6 md:p-6 md:pt-16">
+      <div className="relative flex min-h-0 flex-1 flex-col justify-end gap-4 p-5 pt-16 md:gap-6 md:p-6 md:pt-16">
         <div>
           <h3 className="text-xl font-medium md:text-2xl">{slide.title}</h3>
           <p className="mt-1.5 max-w-xs text-xs leading-relaxed opacity-85 md:text-sm">{slide.description}</p>
@@ -78,16 +74,20 @@ function Showcase({ variant, active }: { variant: AuthVariant; active: boolean }
           <div className="grid flex-1 grid-flow-col auto-cols-fr gap-1.5" aria-label="Слайды">
             {slides.map((item, n) => (
               <Button key={item.label} variant="ghost" aria-label={`Показать: ${item.label}`} aria-current={index === n ? "true" : undefined}
-                onClick={() => setIndex(n)} className="h-auto min-w-0 flex-col items-stretch gap-2 rounded-full p-0 py-1 text-left text-[10px] font-normal text-inherit hover:bg-transparent hover:text-inherit md:text-xs">
-                <span className={cn("h-0.5 rounded-full bg-current", index === n ? "opacity-100" : "opacity-35")} />
+                onClick={() => choose(n)} className="h-auto min-w-0 flex-col items-stretch gap-2 rounded-full p-0 py-1 text-left text-[10px] font-normal text-inherit hover:bg-transparent hover:text-inherit md:text-xs">
+                <span aria-hidden="true" className="relative h-0.5 overflow-hidden rounded-full">
+                  <span className="absolute inset-0 bg-current opacity-35" />
+                  {n === index ? (
+                    // The fill is the slideshow's clock: switching on its end keeps the two in sync.
+                    <span key={revision} className="auth-step-progress absolute inset-0 bg-current"
+                      style={{ "--auth-step-duration": `${duration}ms`, animationPlayState: playing ? "running" : "paused" } as React.CSSProperties}
+                      onAnimationEnd={() => { if (playing) choose((index + 1) % slides.length) }} />
+                  ) : n < index ? <span className="absolute inset-0 bg-current" /> : null}
+                </span>
                 <span className={cn("truncate", index !== n && "opacity-60")}>{item.label}</span>
               </Button>
             ))}
           </div>
-          {!reduced && <Button variant="ghost" size="icon-sm" aria-label={paused ? "Продолжить слайд-шоу" : "Приостановить слайд-шоу"}
-            onClick={() => setPaused((value) => !value)} className="size-7 rounded-full text-inherit hover:bg-(--auth-media-hover) hover:text-inherit">
-            <HugeiconsIcon icon={paused ? PlayIcon : PauseIcon} strokeWidth={ICON_STROKE} />
-          </Button>}
         </div>
       </div>
     </section>
@@ -95,7 +95,7 @@ function Showcase({ variant, active }: { variant: AuthVariant; active: boolean }
 }
 
 type Step = "initial" | "code" | "success"
-type Job = { kind: "email" | "resend" } | { kind: "code"; code: string } | { kind: "social"; provider: AuthSession["provider"] }
+type Job = { kind: "email" | "resend" } | { kind: "code"; code: string } | { kind: "social"; provider: Exclude<AuthSession["provider"], "email"> }
 
 export function AuthModal({ variant, open, onOpenChange: setOpen, onComplete, onClose, onRestoreFocus }: {
   open: boolean
@@ -136,7 +136,7 @@ export function AuthModal({ variant, open, onOpenChange: setOpen, onComplete, on
         setError("Неверный код подтверждения. Попробуйте ещё раз.")
         codeInput.current?.focus()
       } else {
-        onComplete(job.kind === "social" ? { provider: job.provider } : { provider: "email", email: email.trim() })
+        onComplete(job.kind === "social" ? demoSocialSession(job.provider) : { provider: "email", email: email.trim() })
         setStep("success")
       }
     }, job.kind === "social" ? 1600 : 1200)
@@ -174,15 +174,15 @@ export function AuthModal({ variant, open, onOpenChange: setOpen, onComplete, on
 
   return (
     <AppSheet open={open} onOpenChange={setOpen}>
-      <AppSheetContent className="md:max-w-[920px]" onCloseAutoFocus={(event) => { event.preventDefault(); onRestoreFocus() }}>
-        <div className="absolute top-5 right-3 z-20 rounded-full bg-background/90 md:top-3"><AppSheetCloseButton label="Закрыть авторизацию" /></div>
-        <div className="relative min-h-0 overflow-y-auto overscroll-contain md:grid md:min-h-[620px] md:grid-cols-[0.9fr_1fr]">
-          <div className={cn("md:sticky md:top-0 md:self-stretch", step !== "initial" && "max-md:hidden")}><Showcase variant={variant} active={open && (step === "initial" || !mobile)} /></div>
-          <div className={cn("relative flex min-w-0 flex-col justify-center px-5 py-7 md:px-10 md:py-10", step !== "initial" && "max-md:pt-12")}>
-            {step === "code" && <Button variant="ghost" size="icon-sm" disabled={Boolean(job)} aria-label="Назад к способам входа" onClick={() => { setStep("initial"); setCode(""); setError("") }}
-              className="absolute top-2 left-3 rounded-full md:top-3"><HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={ICON_STROKE} /></Button>}
+      <AppSheetContent variant={mobile ? "fullscreen" : "sheet"} className="md:h-[660px] md:max-w-[920px]" onCloseAutoFocus={(event) => { event.preventDefault(); onRestoreFocus() }}>
+        <div className="absolute top-[calc(env(safe-area-inset-top)+12px)] right-3 z-20 rounded-full bg-background/90 md:top-3"><AppSheetCloseButton label="Закрыть авторизацию" /></div>
+        {step === "code" && <Button variant="ghost" size="icon-lg" disabled={Boolean(job)} aria-label="Назад к способам входа" onClick={() => { setStep("initial"); setCode(""); setError("") }}
+          className="absolute top-[calc(env(safe-area-inset-top)+12px)] left-3 z-20 rounded-full bg-background/90 text-muted-foreground max-md:size-10 md:top-3 md:left-[calc(100%*9/19+12px)] [&_svg]:size-5"><HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={ICON_STROKE} /></Button>}
+        <div className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain max-md:flex max-md:flex-col md:grid md:grid-cols-[0.9fr_1fr]">
+          <div className={cn("shrink-0 md:sticky md:top-0 md:self-stretch", step !== "initial" && "max-md:hidden")}><Showcase variant={variant} active={open && (step === "initial" || !mobile)} /></div>
+          <div className={cn("relative flex min-w-0 shrink-0 flex-col justify-center px-5 py-7 max-md:flex-1 md:px-10 md:py-10", step !== "initial" && "max-md:pt-12")}>
             <div className="flex flex-col items-center text-center">
-              {step === "initial" && <Badge variant="secondary" className="mb-4 rounded-full bg-primary/10 px-3 py-1 text-primary">{nano ? "1 бесплатная генерация" : "1 бесплатный запрос"}</Badge>}
+              {step === "initial" && <Badge variant="secondary" className="mb-4 rounded-full border-[1.5px] border-white/35 bg-(image:--gradient-molly) px-3 py-1 font-bold text-white">{nano ? "1 бесплатная генерация" : "1 бесплатный запрос"}</Badge>}
               {step === "success" && <span className="mb-5 flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground"><HugeiconsIcon icon={Tick02Icon} strokeWidth={2} className="size-6" /></span>}
               <AppSheetTitle ref={titleRef} tabIndex={-1} className="max-w-sm text-2xl leading-tight font-medium outline-none">{title}</AppSheetTitle>
               <AppSheetDescription className="mt-3 text-sm leading-relaxed text-pretty">{description}</AppSheetDescription>

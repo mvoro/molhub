@@ -1,6 +1,6 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
-import { readAuthSession, validDemoCode, validEmail } from "../src/lib/auth.ts"
+import { authAccountName, demoSocialSession, readAuthSession, validDemoCode, validEmail } from "../src/lib/auth.ts"
 
 test("a fresh or malformed session stays a guest", () => {
   for (const value of [null, "", "1", "true", "{}", "null", "not-json", '{"provider":"unknown"}', '{"provider":"email"}', '{"provider":"email","email":"broken"}']) {
@@ -9,10 +9,19 @@ test("a fresh or malformed session stays a guest", () => {
 })
 
 test("only the supported demo sign-in methods restore a session", () => {
-  for (const provider of ["VK ID", "Яндекс", "Google"]) {
-    assert.deepEqual(readAuthSession(JSON.stringify({ provider })), { provider })
+  for (const provider of ["VK ID", "Яндекс", "Google"] as const) {
+    assert.deepEqual(readAuthSession(JSON.stringify({ provider })), demoSocialSession(provider))
   }
   assert.deepEqual(readAuthSession('{"provider":"email","email":" demo@example.com "}'), { provider: "email", email: "demo@example.com" })
+})
+
+test("account identities survive reload and are used instead of a generic account name", () => {
+  const google = readAuthSession('{"provider":"Google","email":" person@gmail.com "}')!
+  const yandex = readAuthSession('{"provider":"Яндекс","accountId":" example.id "}')!
+  assert.equal(authAccountName(google), "person@gmail.com")
+  assert.equal(authAccountName(yandex), "Яндекс ID: example.id")
+  assert.equal(authAccountName(readAuthSession('{"provider":"email","email":"person@example.com"}')!), "person@example.com")
+  assert.equal(authAccountName(readAuthSession('{"provider":"Google"}')!), "demo@gmail.com")
 })
 
 test("email and code follow the reference demo flow, including its error branch", () => {
