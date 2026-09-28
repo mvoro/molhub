@@ -178,7 +178,7 @@ export function AuthModal({ variant, open, onOpenChange: setOpen, onComplete, on
         <div className="absolute top-5 right-3 z-20 rounded-full bg-background/90 md:top-3"><AppSheetCloseButton label="Закрыть авторизацию" /></div>
         <div className="relative min-h-0 overflow-y-auto overscroll-contain md:grid md:min-h-[620px] md:grid-cols-[0.9fr_1fr]">
           <div className={cn("md:sticky md:top-0 md:self-stretch", step !== "initial" && "max-md:hidden")}><Showcase variant={variant} active={open && (step === "initial" || !mobile)} /></div>
-          <div className={cn("relative flex min-w-0 flex-col justify-center px-5 py-7 md:px-10 md:py-14", step !== "initial" && "max-md:pt-12")}>
+          <div className={cn("relative flex min-w-0 flex-col justify-center px-5 py-7 md:px-10 md:py-10", step !== "initial" && "max-md:pt-12")}>
             {step === "code" && <Button variant="ghost" size="icon-sm" disabled={Boolean(job)} aria-label="Назад к способам входа" onClick={() => { setStep("initial"); setCode(""); setError("") }}
               className="absolute top-2 left-3 rounded-full md:top-3"><HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={ICON_STROKE} /></Button>}
             <div className="flex flex-col items-center text-center">
