@@ -116,8 +116,7 @@ export function EntityActionsProvider({
     share: (kind, id) => {
       const url = `${window.location.origin}${withBasePath(`/${kind === "chat" ? "c" : "project"}/${encodeURIComponent(id)}`)}`
       setCopyNotice("")
-      void copyText(url).then(
-        () => setCopyNotice("Ссылка скопирована"),
+      void copyText(url, "Ссылка скопирована").catch(
         () => setCopyNotice("Не удалось скопировать ссылку. Попробуйте ещё раз.")
       )
     },

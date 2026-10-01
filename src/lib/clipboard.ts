@@ -1,4 +1,6 @@
-export async function copyText(text: string): Promise<void> {
+import { toast } from "sonner"
+
+async function writeClipboardText(text: string): Promise<void> {
   if (navigator.clipboard?.writeText) {
     try {
       await navigator.clipboard.writeText(text)
@@ -34,4 +36,9 @@ export async function copyText(text: string): Promise<void> {
       ranges.forEach((range) => selection.addRange(range))
     }
   }
+}
+
+export async function copyText(text: string, successMessage = "Скопировано"): Promise<void> {
+  await writeClipboardText(text)
+  toast.success(successMessage)
 }

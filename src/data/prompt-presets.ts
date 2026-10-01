@@ -12,6 +12,8 @@ export type PromptPreset = {
   /* An id from PRESET_CATEGORIES of the same type (never "all"). */
   category: string
   ratio?: string
+  /* Optional repeat settings for templates whose timing requires a compatible model. */
+  generation?: { model: string; duration: string }
   /* A video template's short clip under /public: its cards play it on their own (AutoClip), the
      poster being `image`. */
   video?: string
@@ -43,6 +45,190 @@ export const PRESET_CATEGORIES: Record<PresetType, { id: string; label: string }
 
 export const PROMPT_PRESETS: Record<PresetType, PromptPreset[]> = {
   image: [
+    /* Вторая подборка (30.09): 20 новых стилей по design/prompts/photo-styles-wave-02.md.
+       Исходные PNG — design/generated/photo-styles-wave-02; карточки — JPEG шириной 800 px.
+       Категории чередуются, новые стили стоят перед первой подборкой. */
+    {
+      id: "red-pencil-sketch",
+      title: "Красный скетч",
+      prompt:
+        "Перерисуй фото быстрым скетчем красным карандашом: алые, розовые и бордовые штрихи на светлой бумаге, живой контур, незакрашенные участки. Сохрани позу, силуэт и узнаваемые детали героя. Без надписей.",
+      image: withBasePath("/presets/styles/red-pencil-sketch.jpg"),
+      category: "drawing",
+      ratio: "Авто",
+    },
+    {
+      id: "brick-world",
+      title: "Мир из конструктора",
+      prompt:
+        "Пересобери фото как миниатюрный мир из пластикового конструктора: герой, предметы и окружение состоят из деталей с заметными стыками и выступами. Сохрани позу, цвета одежды и композицию. Макросъёмка, мягкий свет, без упаковки и логотипов.",
+      image: withBasePath("/presets/styles/brick-world.jpg"),
+      category: "toys",
+      ratio: "Авто",
+    },
+    {
+      id: "fisheye-editorial",
+      title: "Фишай",
+      prompt:
+        "Пересними героя фото на близко расположенный объектив «рыбий глаз»: сильная перспектива, увеличенный передний план и округлённые линии по краям. Сохрани узнаваемость, одежду и целостность формы. Весь силуэт в кадре, светлый студийный фон.",
+      image: withBasePath("/presets/styles/fisheye-editorial.jpg"),
+      category: "photo",
+      ratio: "Авто",
+    },
+    {
+      id: "mirror-portrait",
+      title: "Портрет в зеркале",
+      prompt:
+        "Помести цветной портрет человека с фото внутрь старинного овального зеркала. За пределами стекла — только тёмная монохромная рама и чёрный фон. Мягкий свет, натуральная кожа, узнаваемое лицо и исходная одежда. Без второго человека снаружи.",
+      image: withBasePath("/presets/styles/mirror-portrait.jpg"),
+      category: "fantasy",
+      ratio: "Авто",
+    },
+    {
+      id: "floating-product-ad",
+      title: "Товар в воздухе",
+      prompt:
+        "Сделай рекламный кадр товара с фото: он парит под небольшим углом над поверхностью, снизу мягкая отделённая тень, тёмный фон и выразительный боковой свет. Сохрани форму, материалы, цвет и всю существующую маркировку товара. Новые надписи не добавляй.",
+      image: withBasePath("/presets/styles/floating-product-ad.jpg"),
+      category: "useful",
+      ratio: "Авто",
+    },
+    {
+      id: "cubist-portrait",
+      title: "Кубизм",
+      prompt:
+        "Преврати портрет в современную кубистическую иллюстрацию: геометрические плоскости, угловатые черты, небольшая асимметрия и ограниченная яркая палитра на тёмном фоне. Сохрани причёску, одежду, позу и узнаваемость человека.",
+      image: withBasePath("/presets/styles/cubist-portrait.jpg"),
+      category: "drawing",
+      ratio: "Авто",
+    },
+    {
+      id: "plush-world",
+      title: "Плюшевый мир",
+      prompt:
+        "Преврати героя и окружение в плюшевую сцену: короткий мягкий ворс, бархатные детали, фетр, швы и объёмная набивка. Сохрани силуэт, цвета и узнаваемые черты. Макросъёмка с мягким светом, без вязаных петель.",
+      image: withBasePath("/presets/styles/plush-world.jpg"),
+      category: "toys",
+      ratio: "Авто",
+    },
+    {
+      id: "red-light-portrait",
+      title: "Красный свет",
+      prompt:
+        "Освети исходное фото направленным красным светом, как от неоновой вывески ночью. Сохрани объём, глубокие тени и натуральную кожу. Лицо, позу, одежду, окружение и кадрирование не меняй; цвет должен выглядеть освещением, а не сплошным фильтром.",
+      image: withBasePath("/presets/styles/red-light-portrait.jpg"),
+      category: "photo",
+      ratio: "Авто",
+    },
+    {
+      id: "dandelion-journey",
+      title: "На одуванчике",
+      prompt:
+        "Покажи человека с фото путешественником в корзинке под одной огромной пушинкой одуванчика над лугом. Высокие травы вокруг подчёркивают сказочный масштаб. Сохрани лицо и одежду, сделай реалистичный утренний свет. Один человек, одна корзина и одна пушинка.",
+      image: withBasePath("/presets/styles/dandelion-journey.jpg"),
+      category: "fantasy",
+      ratio: "Авто",
+    },
+    {
+      id: "product-on-ice",
+      title: "Товар во льду",
+      prompt:
+        "Помести товар с фото в композицию из колотого льда: иней по краям, капли конденсата и холодный мягкий свет. Сохрани форму, цвет и маркировку упаковки; передняя сторона должна оставаться видимой. Не меняй материал самого товара и не добавляй текст.",
+      image: withBasePath("/presets/styles/product-on-ice.jpg"),
+      category: "useful",
+      ratio: "Авто",
+    },
+    {
+      id: "crayon-naive",
+      title: "Восковые мелки",
+      prompt:
+        "Полностью перерисуй героя фото восковыми мелками, как наивный рисунок в альбоме: неровный контур, смешные добрые пропорции, грубые цветные штрихи и фактура бумаги. Сохрани причёску, одежду и характерные детали.",
+      image: withBasePath("/presets/styles/crayon-naive.jpg"),
+      category: "drawing",
+      ratio: "Авто",
+    },
+    {
+      id: "iridescent-sculpture",
+      title: "Перламутровая скульптура",
+      prompt:
+        "Сделай главного героя фото скульптурой из гладкой перламутровой смолы: плавные переливы лилового, мятного и розового, мягкие студийные блики, тёмный однотонный фон. Сохрани силуэт и характерные детали, без зеркальной мозаики.",
+      image: withBasePath("/presets/styles/iridescent-sculpture.jpg"),
+      category: "toys",
+      ratio: "Авто",
+    },
+    {
+      id: "slow-shutter-portrait",
+      title: "Длинная выдержка",
+      prompt:
+        "Сделай фото с эффектом длинной выдержки: главный человек остаётся резким, а движение вокруг превращается в мягкие шлейфы и световые дорожки. Сохрани лицо и одежду, не дублируй голову и руки. Спокойная вечерняя цветокоррекция.",
+      image: withBasePath("/presets/styles/slow-shutter-portrait.jpg"),
+      category: "photo",
+      ratio: "Авто",
+    },
+    {
+      id: "real-in-painted-world",
+      title: "В рисованном мире",
+      prompt:
+        "Оставь человека на фото фотореалистичным, а всё окружение перерисуй мягкой акварелью с видимой фактурой бумаги. Сохрани лицо, одежду и позу; согласуй свет и тени между реальным героем и рисованным миром. Не превращай самого человека в иллюстрацию.",
+      image: withBasePath("/presets/styles/real-in-painted-world.jpg"),
+      category: "fantasy",
+      ratio: "Авто",
+    },
+    {
+      id: "nature-product-display",
+      title: "Природная витрина",
+      prompt:
+        "Создай природную витрину для товара с фото: широкая деревянная ветка как подставка, немного песка, спокойное отражение в воде и тёплый охристый фон. Товар стоит устойчиво. Сохрани его реальные форму, материал, цвет и маркировку, без лишнего декора и новых надписей.",
+      image: withBasePath("/presets/styles/nature-product-display.jpg"),
+      category: "useful",
+      ratio: "Авто",
+    },
+    {
+      id: "storybook-interior",
+      title: "Книжная иллюстрация",
+      prompt:
+        "Сделай из фото уютную книжную иллюстрацию: плоские гуашевые заливки, тонкий тёплый контур, фактура бумаги, мягкий дневной свет. Сохрани людей, расположение мебели и важные предметы, упрощая мелкие детали.",
+      image: withBasePath("/presets/styles/storybook-interior.jpg"),
+      category: "drawing",
+      ratio: "Авто",
+    },
+    {
+      id: "point-cloud-portrait",
+      title: "Облако точек",
+      prompt:
+        "Пересобери героя фото как объёмное облако светящихся точек на чёрном фоне. Форму и глубину передай плотностью точек, сохрани позу, силуэт и черты. Без соединяющих линий, надписей и эффекта разрушения.",
+      image: withBasePath("/presets/styles/point-cloud-portrait.jpg"),
+      category: "toys",
+      ratio: "Авто",
+    },
+    {
+      id: "editorial-triptych",
+      title: "Модный триптих",
+      prompt:
+        "Собери вертикальный триптих из трёх горизонтальных кадров одной модной съёмки: крупный портрет, ракурс три четверти и более общий план. Везде тот же человек, одежда, место и свет. Естественная кожа, сдержанная палитра, без рамок и подписей.",
+      image: withBasePath("/presets/styles/editorial-triptych.jpg"),
+      category: "photo",
+      ratio: "4:5",
+    },
+    {
+      id: "sunken-room",
+      title: "Затонувшая комната",
+      prompt:
+        "Преврати комнату с фото в тихий затонувший интерьер: прозрачная бирюзовая вода, солнечные блики, парящие занавески и несколько рыбок. Сохрани планировку, мебель и материалы. Без людей, разрушений и грязной воды.",
+      image: withBasePath("/presets/styles/sunken-room.jpg"),
+      category: "fantasy",
+      ratio: "Авто",
+    },
+    {
+      id: "outfit-try-on",
+      title: "Примерка одежды",
+      prompt:
+        "На первом фото человек, на втором вещь для примерки. Надень эту вещь на человека: точно передай цвет, крой, материал и детали. Сохрани лицо, возраст, фигуру, позу, фон и остальные предметы одежды. Сделай один реалистичный кадр с естественными складками и тенями.",
+      image: withBasePath("/presets/styles/outfit-try-on.jpg"),
+      category: "useful",
+      ratio: "Авто",
+    },
+
     /* Стили (27.09): 30 обложек 4:5 по промтам из design/prompts/photo-styles.md, исходники в
        design/generated/photo-styles. Идут вперемешку, как у ChatGPT: соседние карточки разные по
        цвету и категории. Промт говорит о прикреплённом фото; «Авто» берёт его пропорции, у готовых
@@ -358,6 +544,55 @@ export const PROMPT_PRESETS: Record<PresetType, PromptPreset[]> = {
   ],
 
   video: [
+    // Четыре выбранных ролика: design/generated/video-templates/video-prompts.md.
+    {
+      id: "marina-selfie",
+      generation: { model: "Kling 3.0", duration: "5 с" },
+      title: "Селфи у причала",
+      prompt:
+        "Create exactly 5.0 seconds, vertical 9:16, one continuous natural smartphone selfie shot.\nINPUT: The uploaded source image is the exact first frame and sole identity, clothing and location reference. Preserve the same adult man, short black hair, round thin steel eyeglasses, apricot cotton jacket, graphite T-shirt, lakeside marina, timber boathouses and morning light.\n0.0–1.0 s: Begin exactly from the supplied selfie composition. He keeps natural eye contact with the lens, breathes subtly and blinks once. His camera-holding arm stays extended naturally outside the frame.\n1.0–3.6 s: He takes two unhurried steps along the waterside path. The camera remains held at the same arm's-length selfie distance. His head and shoulders remain comfortably centered while the boathouses and water shift with subtle, physically coherent parallax. Gentle handheld movement from the steps, no large shake.\n3.6–5.0 s: He stops, gives a slightly warmer relaxed smile and holds eye contact. The camera settles naturally. Keep small ripples on the lake and a faint breeze moving a few strands of hair.\nPreserve the exact face, age, glasses shape, hairstyle, jacket and background architecture throughout. Real skin texture, soft morning exposure and mild smartphone perspective. No new people, dancers, passenger, vehicle, extra phone, camera flip, cut, zoom, face morph, dialogue, text, logo or overlay. Audio, if supported: two light footsteps, soft cloth movement and quiet marina ambience; no music or speech.",
+      image: withBasePath("/presets/video-template/image/marina-selfie.jpg"),
+      video: withBasePath("/presets/video-template/video/marina-selfie.mp4"),
+      description: "Живое селфи у воды: два спокойных шага, лёгкое движение камеры и улыбка.",
+      category: "camera",
+      ratio: "9:16",
+    },
+    {
+      id: "lake-dive",
+      generation: { model: "Seedance 2", duration: "5 с" },
+      title: "В глубину",
+      prompt:
+        "Create exactly 5.0 seconds, vertical 9:16, hyperrealistic cinematic VFX, one continuous shot.\nINPUT: The uploaded source image is the exact first frame and absolute vehicle reference. Keep the same intact burnt-orange compact boxy SUV, black roof, round headlights, black steel wheels and chunky tires. There are no occupants or people.\n0.0–1.1 s: Starting at the provided height above the quarry lake, the SUV drops FAST almost perfectly vertically, 85–90 degrees nose-down. Front bumper remains lowest and rear highest. Track downward smoothly with a level camera; no horizontal gliding or slow fall.\n1.1–2.6 s: Front bumper enters first, then hood, windshield and roof. A large physically plausible water burst and white foam erupt upward. The camera follows through the disturbed water surface continuously, with a short real foam occlusion. This is a seamless physical submersion, not a cut, dissolve or rotating transition. The SUV remains intact and keeps sinking nose-first.\n2.6–5.0 s: Underwater, stabilize into one clear three-quarter side tracking view. The descending SUV slows from water drag while bubbles rise above it. The already-spinning wheels rotate subtly and decelerate. Keep the nose lower than the rear; the vehicle never floats or reverses direction. Surface light filters silver-blue through the bubbles and becomes dimmer with depth.\nMaintain exact vehicle geometry, paint and wheel design. Camera roll stays zero and horizon stays level before submersion. No belly-first impact, destruction, fire, detached parts, sharks, fish, visible lakebed, words or logos. Distant pale quarry walls belong only to the above-water establishing view. Audio, if supported: fast wind, one heavy splash, then muffled bubbles and deep water resonance; no music or speech.",
+      image: withBasePath("/presets/video-template/image/lake-dive.jpg"),
+      video: withBasePath("/presets/video-template/video/lake-dive.mp4"),
+      description: "Автомобиль падает носом в воду, камера проходит сквозь всплеск и следует за погружением.",
+      category: "action",
+      ratio: "9:16",
+    },
+    {
+      id: "harbor-leap",
+      generation: { model: "Kling 3.0", duration: "5 с" },
+      title: "Прыжок над портом",
+      prompt:
+        "Create exactly 5.0 seconds, vertical 9:16, cinematic fictional rooftop action, one smooth side-tracking take.\nINPUT: The uploaded source image is the exact first frame. Preserve the athletic adult woman with a silver-blonde braid, burnt-sienna track jacket and trousers, grey trainers, two equal-height harbor warehouse roofs, and ONE red propeller airplane already in the distant sky.\n0.0–1.2 s: From her ready position, she takes the final TWO light running steps toward the RIGHT edge. The camera immediately tracks right parallel to her, keeping her entire body in strict side profile and leaving landing space ahead.\n1.2–3.4 s: She pushes off the left roof and performs one graceful grand-jete-style leap to the RIGHT across the approximately 2.5-meter gap. Extend the legs into a natural airborne split, torso upright, arms balanced. Use a modest cinematic speed ramp through the apex, never freeze her in midair. Camera follows the same lateral direction without orbiting or changing side.\n2.0–3.0 s, concurrently with the leap: the SAME small red propeller airplane crosses the distant sky behind her, well separated from the roofs. Keep it realistically distant, not a giant airliner and not a second aircraft.\n3.4–4.3 s: Return to normal speed. She lands feet-first on the right roof, bending both knees to absorb impact. Preserve the landing roof and believable anatomy.\n4.3–5.0 s: She settles upright in right-facing profile and exhales once; camera gently stops. No extra turn, extra jump or added dialogue.\nCool sunrise, soft warm sky, tactile concrete and cloth, smooth gravity-driven motion. No camera roll, front-facing pose, morphing roofs, duplicate aircraft, text, brands or overlays. Audio, if supported: two footsteps, takeoff, distant propeller hum, soft landing and breath; no music or speech.",
+      image: withBasePath("/presets/video-template/image/harbor-leap.jpg"),
+      video: withBasePath("/presets/video-template/video/harbor-leap.mp4"),
+      description: "Разбег и прыжок между крышами на фоне порта, в небе пролетает самолёт.",
+      category: "action",
+      ratio: "9:16",
+    },
+    {
+      id: "desert-orbit",
+      generation: { model: "Kling 3.0", duration: "5 с" },
+      title: "Орбита в пустыне",
+      prompt:
+        "Create exactly 5.0 seconds, vertical 9:16, one continuous premium automotive camera move.\nINPUT: The uploaded source image is the exact first frame and the only vehicle, person and environment reference. Preserve the deep-aubergine two-door coupe, round recessed headlights, silver five-spoke wheels, sand-colored jacket, long dark braid and limestone observatory courtyard.\n0.0–1.4 s: From the initial low three-quarter front view, the camera glides close past the nearest front wheel, moving rightward on a smooth short arc. Real parallax, restrained natural motion blur; keep the wheel round and the car rigid.\n1.4–3.7 s: Continue that same approximately 25-degree arc around the front corner while lifting the camera gently from wheel height to waist height. Widen the composition just enough to reveal the whole coupe and woman again. She remains beside the same fender and turns her head slightly toward the moving lens.\n3.7–5.0 s: Decelerate and hold a composed three-quarter hero view. Her jacket hem moves subtly in a light desert breeze. The distant observatory dish stays fixed.\nThe coupe is parked for the entire shot: wheels do not roll, headlights stay off, no tire smoke or driving. No cut, full orbit, whip-spin or new vehicle angle unrelated to this path. Maintain body panel design, reflections, wheel count, woman's face and wardrobe. Natural blue-hour silver reflections and fine real material texture. No badges, readable plates, words or overlays. Audio, if supported: light wind, a soft movement whoosh and fabric rustle; no engine revs, music or dialogue.",
+      image: withBasePath("/presets/video-template/image/desert-orbit.jpg"),
+      video: withBasePath("/presets/video-template/video/desert-orbit.mp4"),
+      description: "Камера проходит у колеса и по дуге раскрывает автомобиль и героя на фоне обсерватории.",
+      category: "camera",
+      ratio: "9:16",
+    },
     /* Эффекты (27.09): старт-кадр 9:16 и ролик на 5 с по промтам из design/prompts/video-effects.md,
        исходники в design/generated/video-effects. Промт уходит в модель под капотом: пользователь
        видит в композере картинку шаблона и дописывает своё. Постер = первый кадр ролика, чтобы при

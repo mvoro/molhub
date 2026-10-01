@@ -11,6 +11,7 @@ const source = ts.transpileModule(readFileSync(new URL("../src/lib/clipboard.ts"
 function setup({ modern = false, rejected = false, legacy = true, modal = false } = {}) {
   let copied: string | undefined
   let input: Field | undefined
+  const successes: string[] = []
   const root = { append: (field: Field) => { input = field; field.container = root } }
   const dialog = { append: (field: Field) => { input = field; field.container = dialog } }
   class Field {
@@ -44,16 +45,23 @@ function setup({ modern = false, rejected = false, legacy = true, modal = false 
       return true
     },
   }
-  const api = {} as { copyText: (text: string) => Promise<void> }
+  const api = {} as { copyText: (text: string, successMessage?: string) => Promise<void> }
   runInNewContext(source, {
     exports: api, document, HTMLElement: Field,
+    require: (name: string) => {
+      assert.equal(name, "sonner")
+      return { toast: { success: (message: string) => {
+        assert.notEqual(copied, undefined, "success must follow the clipboard write")
+        successes.push(message)
+      } } }
+    },
     window: { getSelection: () => selection },
     navigator: { clipboard: modern ? { writeText: async (text: string) => {
       if (rejected) throw new Error("NotAllowedError")
       copied = text
     } } : undefined },
   })
-  return { ...api, copied: () => copied, field: () => input, focused: () => document.activeElement, opener }
+  return { ...api, successes, copied: () => copied, field: () => input, focused: () => document.activeElement, opener }
 }
 
 test("copy works over HTTP when Clipboard API is unavailable", async () => {
@@ -63,14 +71,16 @@ test("copy works over HTTP when Clipboard API is unavailable", async () => {
   assert.equal(env.copied(), value)
   assert.equal(env.field(), undefined)
   assert.equal(env.focused(), env.opener)
+  assert.deepEqual(env.successes, ["Скопировано"])
 })
 
 test("permission rejection falls back while copying inside a modal", async () => {
   const env = setup({ modern: true, rejected: true, modal: true })
-  await env.copyText("Текст документа")
+  await env.copyText("Текст документа", "Текст документа скопирован")
   assert.equal(env.copied(), "Текст документа")
   assert.equal(env.field(), undefined)
   assert.equal(env.focused(), env.opener)
+  assert.deepEqual(env.successes, ["Текст документа скопирован"])
 })
 
 test("successful Clipboard API copy preserves exact text", async () => {
@@ -78,6 +88,7 @@ test("successful Clipboard API copy preserves exact text", async () => {
   await env.copyText("  строка\nещё строка  ")
   assert.equal(env.copied(), "  строка\nещё строка  ")
   assert.equal(env.field(), undefined)
+  assert.deepEqual(env.successes, ["Скопировано"])
 })
 
 test("failed fallback reports failure and restores the page", async () => {
@@ -86,4 +97,5 @@ test("failed fallback reports failure and restores the page", async () => {
   assert.equal(env.copied(), undefined)
   assert.equal(env.field(), undefined)
   assert.equal(env.focused(), env.opener)
+  assert.deepEqual(env.successes, [])
 })

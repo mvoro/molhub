@@ -1,0 +1,55 @@
+/* Media uses the same cards, tokens and clips as the studio, with varied heights for browsing. */
+.trends-grid {
+  columns: 2;
+  column-gap: 12px;
+}
+.trends-grid-item {
+  break-inside: avoid;
+  padding-bottom: 12px;
+}
+@container (min-width: 640px) {
+  .trends-grid { columns: 3; column-gap: 16px; }
+  .trends-grid-item { padding-bottom: 16px; }
+}
+@container (min-width: 960px) {
+  .trends-grid { columns: 4; }
+}
+@container (min-width: 1280px) {
+  .trends-grid { columns: 5; }
+}
+.trends-categories {
+  --fade-start: 0px;
+  --fade-end: 0px;
+  scrollbar-width: none;
+  scroll-padding-inline: 24px;
+  mask-image: linear-gradient(to right, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent);
+}
+.trends-categories::-webkit-scrollbar { display: none; }
+.trends-categories[data-overflow-start] { --fade-start: 24px; }
+.trends-categories[data-overflow-end] { --fade-end: 24px; }
+.trends-card-more { display: none; }
+.trends-card-meta { display: none; }
+@media (min-width: 768px) and (hover: hover) and (pointer: fine) {
+  .trends-card { transition: transform var(--duration-press) var(--ease-out); }
+  .trends-card-meta { display: flex; }
+  .trends-card-more { display: inline-flex; }
+  .trends-card-caption {
+    transform: translateY(48px);
+    transition: transform var(--duration-press) var(--ease-out);
+  }
+  .trends-card:hover .trends-card-caption,
+  .trends-card:focus-visible .trends-card-caption { transform: translateY(0); }
+  .trends-card-meta, .trends-card-more {
+    opacity: 0;
+    transition: opacity var(--duration-fast) var(--ease-out);
+  }
+  .trends-card:hover .trends-card-meta,
+  .trends-card:focus-visible .trends-card-meta,
+  .trends-card:hover .trends-card-more,
+  .trends-card:focus-visible .trends-card-more { opacity: 1; }
+  .trends-card:hover .trends-card-play,
+  .trends-card:focus-visible .trends-card-play { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trends-card, .trends-card-meta, .trends-card-more, .trends-card-caption { transition: none; }
+}

@@ -41,6 +41,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { AudioPromptFields } from "@/components/chat-composer/audio-prompt-fields"
+import { selectComposerPreset } from "@/components/chat-composer/preset-draft"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -89,8 +90,8 @@ export type ComposerMessage = {
   files: ComposerFile[]
   /* Start and end frame for frame-driven video models (Kling); both null otherwise. */
   frames: [ComposerFile | null, ComposerFile | null]
-  /* The video template the request runs through and the photo it animates: both or neither. The text
-     is then the user's additions to the template's own prompt, and may be empty. */
+  /* The video template and the photo it animates. `text` is the full, editable request; template
+     metadata selects the effect/preview and must never be prepended to it when sending. */
   template: PromptPreset | null
   photo: ComposerFile | null
   mode: ComposerMode
@@ -103,8 +104,8 @@ export type ComposerMessage = {
 export type ComposerHandle = {
   /* Put a preset's prompt in the field (and its settings, e.g. the ratio). */
   fill: (text: string, options?: { patch?: Partial<Settings> }) => void
-  /* Run the video through a template (the video tool's «Шаблоны»): see `templateSlots`. */
-  applyTemplate: (preset: PromptPreset) => void
+  /* Select a photo style or video template, replacing its prompt and mode-specific media. */
+  applyPreset: (preset: PromptPreset) => void
   /* Open the OS picker: photos, photos and videos, or any file. */
   attach: (accept?: "image" | "media" | "file") => void
   /* Pick a model by name, as the model picker does: the composer switches to its kind (the home
@@ -217,11 +218,11 @@ export function ChatComposer({
   const needFrames = frameCount > 0
   const attachmentsAllowed = modelInfo?.version.attachments !== false
   const maxFiles = modelInfo?.version.maxFiles ?? MAX_FILES
-  // Templates are the video tool's; on another tool the chosen one waits, unseen, for the way back.
+  // Templates belong to video; selecting a style in photo clears their source slots.
   const shownTemplate = mode === "video" ? template : null
   const typed = text.trim() !== ""
-  // A template is a whole request on its own: the text only adds to it.
-  const ready = typed || shownTemplate !== null || (mode === "audio" && settings.custom && settings.styles.trim() !== "")
+  // The visible, editable text is the whole request, including when it came from a template.
+  const ready = typed || (mode === "audio" && settings.custom && settings.styles.trim() !== "")
   const cost = estimateCost(mode, settings, modelInfo?.version.price, model)
   const busy = generating
 
@@ -300,18 +301,36 @@ export function ChatComposer({
     if (file) setMissingPhoto(0)
   }
 
-  const applyTemplate = (preset: PromptPreset) => {
-    if (!requireAuth(authVariant)) return
-    setTemplate(preset)
+  const applyPreset = (preset: PromptPreset) => {
+    if (mode !== "image" && mode !== "video") return
+    if ((mode === "video" || preset.ratio) && !requireAuth(authVariant)) return
+    const selection = selectComposerPreset({ text, files, frames, template, photo }, preset, mode)
+    setText(selection.draft.text)
+    setTemplate(selection.draft.template ?? null)
+    setPhoto(selection.draft.photo ?? null)
+    setFiles(selection.draft.files)
+    setFrames(selection.draft.frames)
     setMissingPhoto(0)
-    if (preset.ratio) setAllSettings((prev) => ({ ...prev, video: normalizeSettings("video", models.video, { ...prev.video, ratio: preset.ratio! }) }))
-    // A picture attached before the template becomes its photo.
-    const picture = photo ? undefined : files.find((item) => item.type.startsWith("image/"))
-    if (picture) {
-      setPhoto(picture)
-      setFiles((prev) => prev.filter((item) => item !== picture))
+    const presetModel = resolveModelName(mode, preset.generation?.model ?? model)
+    if (preset.generation) setModels((prev) => ({ ...prev, [mode]: presetModel }))
+    if (preset.ratio || preset.generation) {
+      setAllSettings((prev) => ({ ...prev, [mode]: normalizeSettings(mode, presetModel, {
+        ...prev[mode],
+        ...(preset.ratio ? { ratio: preset.ratio } : {}),
+        ...(preset.generation ? { duration: preset.generation.duration } : {}),
+      }) }))
     }
-    requestAnimationFrame(() => fieldRef.current?.focus({ preventScroll: true }))
+    for (const url of selection.releasedUrls) URL.revokeObjectURL(url)
+    if (viewed && selection.releasedUrls.includes(viewed.url)) {
+      setViewerOpen(false)
+      setViewed(null)
+    }
+    requestAnimationFrame(() => {
+      const field = fieldRef.current
+      if (!field) return
+      field.focus({ preventScroll: true })
+      field.setSelectionRange(preset.prompt.length, preset.prompt.length)
+    })
   }
 
   // The cross on the template. Its photo stays with the request as an ordinary attachment, and focus
@@ -447,7 +466,7 @@ export function ChatComposer({
         field.setSelectionRange(next.length, next.length)
       })
     },
-    applyTemplate,
+    applyPreset,
     attach: (accept) => (accept === "file" ? attach("file") : attachPhoto(accept)),
     selectModel: (name) => {
       const match = findModel(name, mode) ?? (!locked ? findModel(name) : undefined)
@@ -651,7 +670,7 @@ export function ChatComposer({
      drops it, on the left, then Krea's upload zone for the photo it animates — a 48px tile with the
      slot's name under it; the photo takes the tile's place once added. Each column is named: «Шаблон»,
      «Фото». Sent without the photo, the tile turns red (the pill shakes, see `submit`) and a toast
-     says why. The template's prompt goes with the request unseen; the field is for additions. */
+     says why. The template's prompt is in the field below and can be edited before sending. */
   const templateSlots = shownTemplate && (
     <>
       <div className={SLOT}>
@@ -817,7 +836,7 @@ export function ChatComposer({
                   addFiles(event.clipboardData.files)
                 }
               }}
-              placeholder={hint && !text ? "" : shownTemplate ? "Добавьте детали, если нужно" : placeholder}
+              placeholder={hint && !text ? "" : placeholder}
               aria-label="Сообщение"
               enterKeyHint={isTouch() ? "enter" : "send"}
               className="max-h-[200px] min-h-12 resize-none border-0 bg-transparent! px-4 pt-3.5 pb-1 text-base leading-6 shadow-none focus-visible:ring-0 disabled:opacity-100 md:text-[15px] max-md:max-h-[30svh]"

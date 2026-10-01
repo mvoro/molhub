@@ -8,6 +8,8 @@ import { BalanceButton } from "@/components/balance/balance-button"
 import { ChatView } from "@/components/chat-view"
 import { NewChat, type RoleLaunch } from "@/components/new-chat"
 import { RolesView } from "@/components/roles/roles-view"
+import { TrendsView } from "@/components/trends/trends-view"
+import { CarouselStudio } from "@/components/carousel/carousel-studio"
 import { ProjectChatMobileTitle, ProjectView } from "@/components/project/project-view"
 import { ProjectChatMenu } from "@/components/project/project-chat-header"
 import { RenameField, useRename } from "@/components/rename-field"
@@ -23,6 +25,7 @@ import { MusicProvider } from "@/hooks/use-music"
 import { RolesProvider } from "@/hooks/use-roles"
 import { WorkspaceVisibilityContext } from "@/hooks/workspace-visibility"
 import type { Role } from "@/data/roles"
+import type { Trend } from "@/data/trends"
 import { NEW_CHAT } from "@/data/tools"
 import { ICON_STROKE, NEW_CHAT_ICON } from "@/lib/icons"
 import { rememberTab, type ProjectTab } from "@/lib/project-tabs"
@@ -102,9 +105,9 @@ function MobileHeader({ active, onSelect }: { active: string; onSelect: (id: str
 }
 
 /* Screens whose mobile header has no «Новый чат». */
-const NO_NEW_CHAT = new Set([NEW_CHAT, "new:image", "new:video"])
+const NO_NEW_CHAT = new Set([NEW_CHAT, "new:image", "new:video", "trends", "carousel"])
 
-/* Sections that have no screen yet: named, so a tap from the menu doesn't look broken. */
+/* Section names also supply the browser's title. Unbuilt sections use them in a placeholder. */
 const SECTION_TITLE: Record<string, string> = {
   roles: "Роли",
   carousel: "Карусель",
@@ -158,8 +161,10 @@ type WorkspaceProps = {
   onSelect: (id: string) => void
   onHeaderSelect: (id: string) => void
   roleLaunch?: RoleLaunch
+  trendLaunch?: Trend
   newChatKey: number
   onStartRole: (role: Role, prompt?: string) => void
+  onRepeatTrend: (trend: Trend) => void
 }
 
 function Workspace(props: WorkspaceProps) {
@@ -182,10 +187,13 @@ function Workspace(props: WorkspaceProps) {
   )
 }
 
-function WorkspaceContent({ active, onSelect, roleLaunch, newChatKey, visible }: WorkspaceProps & { visible: boolean }) {
+function WorkspaceContent({ active, onSelect, roleLaunch, trendLaunch, newChatKey, onRepeatTrend, visible }: WorkspaceProps & { visible: boolean }) {
   const { chats, projects } = useHub()
 
-  if (active === "new" || active.startsWith("new:")) return <NewChat key={newChatKey} active={active} onSelect={onSelect} roleLaunch={roleLaunch} visible={visible} />
+  if (active === "new" || active.startsWith("new:")) return <NewChat key={newChatKey} active={active} onSelect={onSelect} roleLaunch={roleLaunch} trendLaunch={trendLaunch} visible={visible} />
+
+  if (active === "trends") return <TrendsView onRepeat={onRepeatTrend} />
+  if (active === "carousel") return <CarouselStudio />
 
   const chat = chats.find((item) => item.id === active)
   if (chat) return <ChatView key={chat.id} chat={chat} />
@@ -215,10 +223,12 @@ export default function App() {
   const [requestedActive, setActive] = React.useState(() => activeFromPath(window.location.pathname))
   const active = !authenticated && PRIVATE_SECTIONS.has(requestedActive) ? NEW_CHAT : requestedActive
   const [roleLaunch, setRoleLaunch] = React.useState<RoleLaunch>()
+  const [trendLaunch, setTrendLaunch] = React.useState<Trend>()
   const [newChatKey, setNewChatKey] = React.useState(0)
   const navigate = React.useCallback((id: string) => {
     if (PRIVATE_SECTIONS.has(id) && !requireAuth()) return
     setRoleLaunch(undefined)
+    setTrendLaunch(undefined)
     setActive(id)
   }, [requireAuth])
   const select = React.useCallback((id: string) => {
@@ -228,31 +238,44 @@ export default function App() {
   const startRole = React.useCallback((role: Role, prompt?: string) => {
     if (!requireAuth()) return
     setRoleLaunch({ role, prompt })
+    setTrendLaunch(undefined)
     setNewChatKey((key) => key + 1)
     setActive(NEW_CHAT)
   }, [requireAuth])
+  const repeatTrend = React.useCallback((trend: Trend) => {
+    setRoleLaunch(undefined)
+    setTrendLaunch(trend)
+    setNewChatKey((key) => key + 1)
+    setActive(`new:${trend.type}`)
+  }, [])
   React.useEffect(() => {
     if (!authenticated && PRIVATE_SECTIONS.has(requestedActive)) {
       requireAuth()
+      setRoleLaunch(undefined)
+      setTrendLaunch(undefined)
       setActive(NEW_CHAT)
     }
   }, [requestedActive, authenticated, requireAuth])
   React.useEffect(() => {
-    const restore = () => { setRoleLaunch(undefined); setActive(activeFromPath(window.location.pathname)) }
+    const restore = () => {
+      setRoleLaunch(undefined)
+      setTrendLaunch(undefined)
+      setActive(activeFromPath(window.location.pathname))
+    }
     window.addEventListener("popstate", restore)
     return () => window.removeEventListener("popstate", restore)
   }, [])
-  const toTextTool = React.useCallback(() => setActive(NEW_CHAT), [])
+  const toTextTool = React.useCallback(() => navigate(NEW_CHAT), [navigate])
   // A project page, on the given tab (or the one it was left on): «Открыть» on project toasts.
   const openProject = React.useCallback((id: string, tab?: ProjectTab) => {
     if (tab) rememberTab(id, tab)
-    setActive(id)
-  }, [])
+    navigate(id)
+  }, [navigate])
   // «Открыть» on the «Фото готовы» / «Видео готово» toast: results keep generating while the user is elsewhere.
   // A project's batch opens its project on «Медиа».
   React.useEffect(
-    () => setFeedOpener((kind, projectId) => (projectId ? openProject(projectId, "media") : setActive(`new:${kind}`))),
-    [openProject]
+    () => setFeedOpener((kind, projectId) => (projectId ? openProject(projectId, "media") : navigate(`new:${kind}`))),
+    [openProject, navigate]
   )
 
   return (
@@ -260,7 +283,7 @@ export default function App() {
     <RolesProvider>
     <RouteSync active={active} onUnknown={toTextTool} />
     {/* Above the workspace: songs keep generating while the user is in another section. */}
-    <MusicProvider onOpenStudio={() => setActive("new:audio")} onOpenProject={(id) => openProject(id, "media")}>
+    <MusicProvider onOpenStudio={() => navigate("new:audio")} onOpenProject={(id) => openProject(id, "media")}>
     <TooltipProvider delayDuration={300} skipDelayDuration={400}>
       {/* Clips the mobile row, which is wider than the screen (menu + workspace side by side).
           overflow-clip, not hidden: a hidden box is still scrollable from code, and focusing a
@@ -273,7 +296,7 @@ export default function App() {
           <AppSidebar active={active} onSelect={select} />
           {/* Workspace: white card with 24px corners on the #f7f7f7 shell (desktop); full-bleed on mobile. */}
           <SidebarInset className="group/chat-workspace relative min-h-0 min-w-0 overflow-clip">
-            <Workspace active={active} onSelect={navigate} onHeaderSelect={select} roleLaunch={roleLaunch} newChatKey={newChatKey} onStartRole={startRole} />
+            <Workspace active={active} onSelect={navigate} onHeaderSelect={select} roleLaunch={roleLaunch} trendLaunch={trendLaunch} newChatKey={newChatKey} onStartRole={startRole} onRepeatTrend={repeatTrend} />
             {/* The balance on desktop: pinned to the card's top right, on the studios' toolbar row
                 (their toolbar keeps room for it, new-chat.tsx); the phone has it in MobileHeader. */}
             <BalanceButton className={cn("absolute top-3.5 right-6 z-30 max-md:hidden", active !== "roles" && "group-has-[[data-artifact-open=true]]/chat-workspace:hidden")} />

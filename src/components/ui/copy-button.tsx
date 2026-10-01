@@ -13,8 +13,9 @@ import { cn } from "@/lib/utils"
 const COPIED_MS = 2000
 
 /* Copy to the clipboard: a stock ghost icon Button whose copy icon swaps for a tick on success
-   (transitions.dev «Icon swap», `.icon-swap` in index.css) and back after 2 s. No toast: a local live
-   region announces the outcome. `value` may be a function, so streaming text is read on press. */
+   (transitions.dev «Icon swap», `.icon-swap` in index.css) and back after 2 s. The shared clipboard
+   helper announces success with a toast; the local live region reports failures. `value` may be
+   a function, so streaming text is read on press. */
 function CopyButton({
   value,
   label = "Копировать",
@@ -39,12 +40,11 @@ function CopyButton({
     setCopied(false)
     setNotice("")
     try {
-      await copyText(typeof value === "function" ? value() : value)
+      await copyText(typeof value === "function" ? value() : value, copiedLabel)
     } catch {
       setNotice("Не удалось скопировать. Попробуйте ещё раз.")
       return
     }
-    setNotice(copiedLabel)
     setCopied(true)
     timer.current = window.setTimeout(() => { setCopied(false); setNotice("") }, COPIED_MS)
   }

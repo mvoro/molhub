@@ -1,0 +1,94 @@
+/* Keep the row's footprint stable. The field reveals toward its trigger without
+   animating layout or squeezing its text; CSS transitions can reverse mid-flight. */
+.roles-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 36px;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.roles-search-field,
+.roles-filters-category {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+
+.roles-search-field,
+.roles-filters-category,
+.roles-search-icon,
+.roles-search-close-icon {
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.roles-search-field {
+  opacity: 0;
+  transform: translateX(8px) scale(0.97);
+  transform-origin: right center;
+  pointer-events: none;
+}
+
+.roles-search-toggle {
+  grid-area: 1 / 2;
+}
+
+.roles-search-icon,
+.roles-search-close-icon {
+  position: absolute;
+  display: flex;
+}
+
+.roles-search-close-icon {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.roles-filters[data-search-open="true"] .roles-search-field,
+.roles-filters[data-search-open="true"] .roles-search-close-icon {
+  opacity: 1;
+  transform: none;
+  transition-duration: var(--duration-press);
+  pointer-events: auto;
+}
+
+.roles-filters[data-search-open="true"] .roles-search-icon {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+@media (width < 768px) {
+  .roles-filters-category {
+    transform-origin: left center;
+  }
+
+  .roles-filters[data-search-open="true"] .roles-filters-category {
+    opacity: 0;
+    transform: translateX(-8px) scale(0.97);
+    pointer-events: none;
+  }
+}
+
+@media (width >= 768px) {
+  .roles-filters {
+    grid-template-columns: minmax(0, 1fr) 36px auto;
+    max-width: 536px;
+    margin-left: auto;
+  }
+
+  .roles-filters-category {
+    grid-area: 1 / 3;
+  }
+}
+
+.roles-filters[data-instant="true"] :is(.roles-search-field, .roles-filters-category, .roles-search-icon, .roles-search-close-icon) {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roles-filters :is(.roles-search-field, .roles-filters-category, .roles-search-icon, .roles-search-close-icon) {
+    transition: none;
+  }
+}

@@ -5,6 +5,14 @@ React 19, TypeScript, Vite, Tailwind CSS и shadcn/ui.
 
 **Сайт:** https://mvoro.github.io/molhub/
 
+## Frontend handoff
+
+[Документация нового UI/UX](docs/frontend-handoff/README.md): экраны и сценарии,
+дизайн-система, правила компонентов, интеграции и приёмка. Для удобного чтения —
+[HTML-справочник](docs/frontend-handoff/index.html). Отдельные руководства:
+[иконки инструментов](docs/frontend-handoff/08-tool-icon-generation.md) и
+[иллюстрации в стиле DnD](docs/frontend-handoff/09-illustration-generation.md).
+
 ## Локальный запуск
 
 Нужен Node.js 24.

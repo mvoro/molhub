@@ -22,6 +22,7 @@ import type { ChatType } from "@/data/chats"
 import { COMPOSER_MODES, findModel, MOLLY_NAME, type ComposerMode } from "@/data/models"
 import { defaultSettings } from "@/data/composer-settings"
 import type { Role } from "@/data/roles"
+import type { Trend } from "@/data/trends"
 import { PROMPT_PRESETS, type PromptPreset } from "@/data/prompt-presets"
 import { NEW_CHAT, TOOLS } from "@/data/tools"
 import { sendChatMessage } from "@/hooks/use-chat-messages"
@@ -30,6 +31,7 @@ import { DEFAULT_FEED_SIZE, FEED_SIZES, generate, setFeedVisible, useMediaFeed, 
 import { useStoredState } from "@/hooks/use-stored-state"
 import { useRoles } from "@/hooks/use-roles"
 import { resolveRole } from "@/lib/roles"
+import { createTrendDraft } from "@/lib/trend-launch"
 import { ICON_STROKE } from "@/lib/icons"
 import { cn } from "@/lib/utils"
 
@@ -81,11 +83,11 @@ function titleFrom(text: string) {
    - Аудио = the music studio (Suno, components/music): its own form instead of the composer.
    A photo idea only fills the prompt; one about the user's own photo leaves attaching it to «+». A video
    idea is a template: a picture with a cross in the composer and Krea's upload tile for the photo.
-   The composer has no backing of its own; on the phone it is pinned to the bottom, except on the
-   text screen, where it sits in the middle under the greeting (27.09). */
+   Both kinds insert an editable prompt. The composer has no backing of its own; on the phone it is
+   pinned to the bottom, except on the text screen, where it sits under the greeting (27.09). */
 export type RoleLaunch = { role: Role; prompt?: string }
 
-export function NewChat({ active, onSelect, roleLaunch, visible = true }: { active: string; onSelect: (id: string) => void; roleLaunch?: RoleLaunch; visible?: boolean }) {
+export function NewChat({ active, onSelect, roleLaunch, trendLaunch, visible = true }: { active: string; onSelect: (id: string) => void; roleLaunch?: RoleLaunch; trendLaunch?: Trend; visible?: boolean }) {
   const { createChat, projects } = useHub()
   const { recordUse } = useRoles()
   const type = typeFromActive(active)
@@ -111,7 +113,7 @@ export function NewChat({ active, onSelect, roleLaunch, visible = true }: { acti
   // The composer's text and files outlive it: the audio studio replaces the composer, and the
   // request must still be there on the way back (27.09). One box for the screen's lifetime, filled
   // in place by the composer's reports; the previews go with this screen.
-  const [draft] = React.useState(() => ({
+  const [draft] = React.useState(() => trendLaunch ? createTrendDraft(trendLaunch) : ({
     ...emptyDraft(),
     text: roleLaunch?.prompt ?? "",
     ...(roleLaunch && { settings: Object.fromEntries(COMPOSER_MODES.map((mode) => [mode, {
@@ -124,7 +126,7 @@ export function NewChat({ active, onSelect, roleLaunch, visible = true }: { acti
   const keepDraft = React.useCallback((next: ComposerDraft) => void Object.assign(draft, next), [draft])
   React.useEffect(
     () => () => {
-      ;[...draft.files, ...draft.frames].forEach((item) => item && URL.revokeObjectURL(item.url))
+      ;[...draft.files, ...draft.frames, draft.photo].forEach((item) => item && URL.revokeObjectURL(item.url))
     },
     [draft]
   )
@@ -151,12 +153,11 @@ export function NewChat({ active, onSelect, roleLaunch, visible = true }: { acti
 
   // A photo idea fills the prompt and its settings; one that talks about the user's photo (a style)
   // leaves attaching it to «+» (the «Прикрепите фото» row went on 27.09, the user's ask). A video idea
-  // is a template (27.09): it goes into the composer as a picture with a cross and asks for the photo
-  // it animates; its prompt is sent unseen.
+  // keeps its preview and upload slot, with its full prompt visible in the field. Selecting a photo
+  // style clears the video template's source slots while ordinary attachments stay.
   const pickPreset = (preset: PromptPreset) => {
     setPreview(null)
-    if (kind === "video") composer.current?.applyTemplate(preset)
-    else composer.current?.fill(preset.prompt, { patch: preset.ratio ? { ratio: preset.ratio } : undefined })
+    composer.current?.applyPreset(preset)
   }
 
   const changeTab = (next: string) => {
@@ -166,11 +167,10 @@ export function NewChat({ active, onSelect, roleLaunch, visible = true }: { acti
   }
 
   const send = ({ text: body, files, template, model, settings }: ComposerMessage) => {
-    // The studio keeps its results in its feed: the request lands on top of it, in view. A template's
-    // prompt leads, the user's additions follow.
+    // The studio keeps results in its feed. The composer already holds the complete editable
+    // prompt, including templates; their metadata only identifies the selected effect.
     if (studio) {
-      const prompt = template ? [template.prompt, body].filter(Boolean).join(" ") : body
-      generate(kind, { prompt, idea: template?.id, model, settings, ratio: settings.ratio, count: settings.count, duration: settings.duration })
+      generate(kind, { prompt: body, idea: template?.id, model, settings, ratio: settings.ratio, count: settings.count, duration: settings.duration })
       setTab("history")
       scroller.current?.scrollTo({ top: 0, behavior: "smooth" })
       return
